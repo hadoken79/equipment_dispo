@@ -1,28 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
+<?php
+/*created by lp - 27.07.2019*/
+require_once('./base/header.php');
+$handler = new DBHandler();
+$kategorien = $handler->getContent("SELECT name, kategorie_id FROM kategorie WHERE geloescht=false;");
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="./lib/css/main.css">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <title>Dispo-Equipment</title>
-</head>
-
-<body>
-    <header>
-        <h5>Dispo-Equipment</h5>
-    </header>
+?>
     <div class="container">
         <div class="row">
             <aside id="lp-kal" class="input-field col s12 m3">
                 <input type="text" placeholder="Wähle ein Datum" class="datepicker">
                 <select>
-                    <option value="" selected>Alle Kategorien</option>
-                    <option value="1">Kamera</option>
-                    <option value="2">Audio</option>
-                    <option value="3">Licht</option>
+                <?php foreach ($kategorien as $kategorie) :?>
+                <option value=<?php echo $kategorie['kategorie_id'];?>><?php echo $kategorie['name'];?></option>
+                    <?php endforeach ?>;
                 </select>
                 <label></label>
             </aside>
@@ -87,15 +77,7 @@
             </div>
         </div>
     </div>
-    <footer>
-        <h5>Ende Gelände</h5>
-    </footer>
-
-
-
-    <script src="./lib/js/materialize.min.js"></script>
-    <script src="./lib/js/app.js"></script>
-
-</body>
-
-</html>
+<?php
+require_once('./base/footer.php');
+?>
+   

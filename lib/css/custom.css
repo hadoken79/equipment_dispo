@@ -22,7 +22,7 @@ footer{
     display: flex;
    justify-content: center;
     background: #26a69a;
-    box-shadow: 0px 5px 5px 0px rgba(0,0,0,0.75);
+    box-shadow: 0px -5px 5px 0px rgba(0,0,0,0.75);
 }
 h5{
     padding: 0.5em;
