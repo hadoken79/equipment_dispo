@@ -1,6 +1,7 @@
 <?php
 /*created by lp - 2019-07-27*/
-require_once('./db/db.php');
+//require_once('./db/db.php');
+require_once('./db/PdoConnector.php');
 
 ?>
 
