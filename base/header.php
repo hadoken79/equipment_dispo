@@ -18,6 +18,6 @@ require_once('./db/PdoConnector.php');
 </head>
 
 <body>
-    <header>
+    <header class="z-depth-3">
         <h5>Dispo-Equipment</h5>
     </header>

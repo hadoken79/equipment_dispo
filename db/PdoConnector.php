@@ -14,11 +14,10 @@ class PdoConnector
     public static function getConn(){
         if(!isset(self::$pdo)){
             self::$pdo = new PDO(self::$dsn, USER, PWD);
-            //set default fetchmode to object
+            //setze default fetchmode to object | kann in jeder ->fetch(Anweisung überschrieben werden)
             self::$pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
-            echo "created new instance of pdo<br>";
+            //echo "created new instance of pdo<br>";
         }
-
         return self::$pdo;
     }
 }

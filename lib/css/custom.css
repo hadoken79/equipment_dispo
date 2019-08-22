@@ -3,6 +3,9 @@ body, html{
     margin: 0;
     font-family: 'Roboto', sans-serif;
 }
+main{
+    min-height: 100vh;
+}
 
 #lp-kal{
     z-index: 1;
@@ -13,16 +16,16 @@ body, html{
 }
 
 header{
-   display: flex;
-   justify-content: center;
+    display: flex;
+    justify-content: center;
     background: #26a69a;
-    box-shadow: 0px 5px 5px 0px rgba(0,0,0,0.75);
 }
 footer{
+    position: sticky;
+    bottom: 0;
     display: flex;
-   justify-content: center;
-    background: #26a69a;
-    box-shadow: 0px -5px 5px 0px rgba(0,0,0,0.75);
+    justify-content: center;
+    
 }
 h5{
     padding: 0.5em;
@@ -30,4 +33,12 @@ h5{
 }
 #lp-card{
     margin-top: 0.5em;
+}
+
+#lp-logwrapper{
+    padding-top: 5em;
+}
+
+.dropdown-content li:focus:not(:hover) {
+    background-color: transparent;
 }

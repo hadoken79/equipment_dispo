@@ -2,8 +2,6 @@
 require_once('conf\config.php');
 
 
-
-
 class DBHandler{
    
    public $db;
