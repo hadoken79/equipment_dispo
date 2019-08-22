@@ -8,7 +8,7 @@
 
 
 <script src="./lib/js/materialize.min.js"></script>
-<script src="./lib/js/index.js"></script>
+<script src="./lib/js/app.js"></script>
 
 </body>
 

@@ -29,7 +29,12 @@ FROM equipment LEFT JOIN set_
 ON equipment.set_id = set_.set_id LEFT JOIN buchung 
 ON equipment.equipment_id = buchung.equipment_id LEFT JOIN kategorie 
 ON equipment.kategorie_id = kategorie.kategorie_id LEFT JOIN equipmentbild
-ON equipment.bild_id = equipmentbild.bild_id WHERE equipment.geloescht=false ORDER BY set_.name DESC;";
+ON equipment.bild_id = equipmentbild.bild_id 
+WHERE equipment.geloescht=false 
+AND equipment.aktiv=true 
+AND (buchung.reserviert_fuer = DATE(NOW()) 
+OR buchung.reserviert_fuer IS NULL) 
+ORDER BY set_.name DESC;";
 $sets_eq = $pdo->query($set_eq_query);
 
 //Verbindung trennen
