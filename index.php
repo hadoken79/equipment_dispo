@@ -10,7 +10,7 @@ $kat_query = "SELECT kategorie_id,name FROM kategorie WHERE kategorie_id in
 AND geloescht=false;";
 $kategorien = $pdo->query($kat_query);
 
-//Alle Sets und alles equipment //TODO variable aus ajax mit abruf von Datum
+//Alle Sets und alles equipment //TODO datumabfrage mit variable aus request ersetzten
 $date = isset($_REQUEST['date']) ? $_REQUEST['date'] : date("Y-m-d");
 echo $date;
 
