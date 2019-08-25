@@ -1,6 +1,10 @@
 <?php
 /*created by lp - 27.07.2019*/
 require_once('./base/header.php');
+if (isset($_GET['test'])) {
+
+    echo "<h1>'Tralala'</h1>";
+}
 
 $pdo = PdoConnector::getConn();
 
@@ -8,34 +12,48 @@ $pdo = PdoConnector::getConn();
 $kat_query = "SELECT kategorie_id,name FROM kategorie WHERE kategorie_id in 
 (SELECT kategorie_id FROM equipment WHERE indispo=true AND geloescht=false)
 AND geloescht=false;";
-$kategorien = $pdo->query($kat_query);
+$stmt = $pdo->prepare($kat_query);
+$stmt->execute();
+$kategorien = $stmt->fetchAll();
 
-//Alle Sets und alles equipment //TODO datumabfrage mit variable aus request ersetzten
-$date = isset($_REQUEST['date']) ? $_REQUEST['date'] : date("Y-m-d");
-echo $date;
 
-$set_eq_query = "SELECT equipment.equipment_id, 
-equipment.name AS eq_name, 
-equipment.beschrieb AS eq_beschrieb, 
+//Alle Sets
+$set_query = "SELECT 
 set_.set_id, 
-set_.beschrieb AS set_beschrieb, 
-set_.name AS set_name, 
-buchung.buchung_id, 
-buchung.reserviert_fuer, 
-buchung.user, 
+set_.name,
+set_.beschrieb,
 equipmentbild.filename,
-kategorie.name AS kat_name
-FROM equipment LEFT JOIN set_ 
-ON equipment.set_id = set_.set_id LEFT JOIN buchung 
-ON equipment.equipment_id = buchung.equipment_id LEFT JOIN kategorie 
+kategorie.name AS kat_name,
+set_.aktiv
+FROM set_ LEFT JOIN kategorie 
+ON set_.kategorie_id = kategorie.kategorie_id LEFT JOIN equipmentbild
+ON set_.bild_id = equipmentbild.bild_id 
+WHERE set_.geloescht=false
+ORDER BY name DESC;";
+
+$stmt = $pdo->prepare($set_query);
+$stmt->execute();
+$sets = $stmt->fetchAll();
+
+//Alles Equipment
+$eq_query = "SELECT 
+equipment.equipment_id, 
+equipment.name,
+equipment.beschrieb,
+equipmentbild.filename,
+kategorie.name AS kat_name,
+equipment.aktiv
+FROM equipment LEFT JOIN kategorie 
 ON equipment.kategorie_id = kategorie.kategorie_id LEFT JOIN equipmentbild
 ON equipment.bild_id = equipmentbild.bild_id 
-WHERE equipment.geloescht=false 
-AND equipment.aktiv=true 
-AND (buchung.reserviert_fuer = DATE(NOW()) 
-OR buchung.reserviert_fuer IS NULL) 
-ORDER BY set_.name DESC;";
-$sets_eq = $pdo->query($set_eq_query);
+WHERE equipment.geloescht=false
+AND equipment.set_id IS NULL
+AND equipment.indispo=true
+ORDER BY name DESC;";
+//$sets_eq = $pdo->query($set_eq_query);
+$stmt = $pdo->prepare($eq_query);
+$stmt->execute();
+$equipments = $stmt->fetchAll();
 
 //Verbindung trennen
 $pdo = null;
@@ -53,7 +71,7 @@ $pdo = null;
                 <ul id='dropdown1' class='dropdown-content'>
                     <li><a href="#!">Alle</a></li>
                     <li class="divider" tabindex="-1"></li>
-                    <?php foreach ($kategorien->fetchAll() as $kategorie) : ?>
+                    <?php foreach ($kategorien as $kategorie) : ?>
                     <li><a href="#!"><?php echo $kategorie->name; ?></a></li>
                     <?php endforeach ?>
                 </ul>
@@ -62,19 +80,41 @@ $pdo = null;
             <div id="lp-card" class="col s12 m9">
                 <ul class="collection">
                     <?php
-                    foreach ($sets_eq->fetchAll() as $eq_set) {
-                        $titel = $eq_set->set_name ? $eq_set->set_name : $eq_set->eq_name;
-                        $beschrieb = $eq_set->set_beschrieb ? $eq_set->set_beschrieb : $eq_set->eq_beschrieb;
+                    foreach ($sets as $set) {
+                        $titel = $set->name;
+                        $beschrieb = $set->beschrieb;
                         $pfad = 'c:/bilder/';
-                        $bild = $eq_set->filename ? $pfad . $eq_set->filename : 'images/yuna.jpg';
-                        if ($eq_set->reserviert_fuer === date("Y-m-d")) {
-                            $titel = '<b>RESERVIERT</b>';
+                        $bild = $set->filename ? $pfad . $set->filename : 'images/yuna.jpg';
+                        $linkvis = '';
+                        if (!$set->aktiv) {
+                            $titel = '<b>Nicht verfügbar</b>';
+                            $linkvis = 'hide';
                         };
-                        echo "<li class='collection-item avatar'>";
+                        echo "<li id='set{$set->set_id}' class='collection-item avatar setlist'>";
                         echo "<img src={$bild} alt='' class='circle'>";
                         echo "<span class='title'>{$titel}</span>";
-                        echo "<p>{$beschrieb}</p>";
-                        echo "<a href='#!' class='secondary-content'><i class='material-icons'>playlist_add</i></a>";
+                        echo "<p class='truncate'>{$beschrieb}</p>";
+                        echo "<p class='status'></p>";
+                        echo "<a href='#!' class='secondary-content bookset {$linkvis}'><i class='material-icons'>playlist_add</i></a>";
+                        echo "</li>";
+                    }
+                    foreach ($equipments as $equipment) {
+                        $titel = $equipment->name;
+                        $beschrieb = $equipment->beschrieb;
+                        $pfad = 'c:/bilder/';
+                        $bild = $equipment->filename ? $pfad . $equipment->filename : 'images/yuna.jpg';
+                        $linkvis = '';
+                        if (!$equipment->aktiv) {
+                            $titel = '<b>Nicht verfügbar</b>';
+                        };
+                        echo "<li id='eqp{$equipment->equipment_id}' class='collection-item avatar eqlist'>";
+                        echo "<img src={$bild} alt='' class='circle'>";
+                        echo "<span class='title'>{$titel}</span>";
+                        echo "<p class='truncate'>{$beschrieb}</p>";
+                        echo "<p class='status'></p>";
+                        if ($equipment->aktiv) {
+                            echo "<a href='#!' class='secondary-content bookeqp'><i class='material-icons'>playlist_add</i></a>";
+                        };
                         echo "</li>";
                     }
                     ?>
@@ -84,32 +124,6 @@ $pdo = null;
     </div>
 </main>
 <?php
-
-
-foreach ($sets_eq->fetchAll() as $eq_set) {
-    $titel = $eq_set->set_name ? $eq_set->set_name : $eq_set->eq_name;
-    $beschrieb = $eq_set->set_beschrieb ? $eq_set->set_beschrieb : $eq_set->eq_beschrieb;
-    $pfad = 'c:/bilder/';
-    $bild = $eq_set->filename ? $pfad . $eq_set->filename : 'images/yuna.jpg';
-    if ($eq_set->reserviert_fuer === date("Y-m-d")) {
-        $titel = '<b>RESERVIERT</b>';
-        $beschrieb = '';
-    };
-    echo "<li class='collection-item avatar'>";
-    echo "<img src={$bild} alt='' class='circle'>";
-    echo "<span class='title'>{$titel}</span>";
-    echo "<p>{$beschrieb}</p>";
-    echo "<a href='#!' class='secondary-content'><i class='material-icons'>grade</i></a>";
-    echo "</li>";
-
-    echo $eq_set->reserviert_fuer . '<br>';
-    echo 'Titel=' . $titel . '<br>';
-    echo 'Beschrieb=' . $beschrieb . '<br>';
-    echo 'Bild=' . $bild . '<br>';
-    echo 'eq_id=' . $eq_set->equipment_id . '<br>';
-    echo 'set_id=' . $eq_set->set_id . '<br>';
-    echo '<hr><br>';
-}
 
 require_once('./base/footer.php');
 ?>
