@@ -1,10 +1,7 @@
 <?php
 /*created by lp - 27.07.2019*/
 require_once('./base/header.php');
-if (isset($_GET['test'])) {
 
-    echo "<h1>'Tralala'</h1>";
-}
 
 $pdo = PdoConnector::getConn();
 
@@ -35,7 +32,7 @@ $stmt = $pdo->prepare($set_query);
 $stmt->execute();
 $sets = $stmt->fetchAll();
 
-//Alles Equipment
+//Alles Equipment, was nicht in einem Set ist
 $eq_query = "SELECT 
 equipment.equipment_id, 
 equipment.name,
@@ -50,7 +47,6 @@ WHERE equipment.geloescht=false
 AND equipment.set_id IS NULL
 AND equipment.indispo=true
 ORDER BY name DESC;";
-//$sets_eq = $pdo->query($set_eq_query);
 $stmt = $pdo->prepare($eq_query);
 $stmt->execute();
 $equipments = $stmt->fetchAll();
@@ -72,7 +68,7 @@ $pdo = null;
                     <li><a href="#!">Alle</a></li>
                     <li class="divider" tabindex="-1"></li>
                     <?php foreach ($kategorien as $kategorie) : ?>
-                    <li><a href="#!"><?php echo $kategorie->name; ?></a></li>
+                        <li><a href="#!"><?php echo $kategorie->name; ?></a></li>
                     <?php endforeach ?>
                 </ul>
             </aside>
@@ -123,6 +119,7 @@ $pdo = null;
         </div>
     </div>
 </main>
+<script src="./lib/js/app.js"></script>
 <?php
 
 require_once('./base/footer.php');
