@@ -20,6 +20,7 @@ set_.set_id,
 set_.name,
 set_.beschrieb,
 equipmentbild.filename,
+set_.kategorie_id,
 kategorie.name AS kat_name,
 set_.aktiv
 FROM set_ LEFT JOIN kategorie 
@@ -38,6 +39,7 @@ equipment.equipment_id,
 equipment.name,
 equipment.beschrieb,
 equipmentbild.filename,
+equipment.kategorie_id,
 kategorie.name AS kat_name,
 equipment.aktiv
 FROM equipment LEFT JOIN kategorie 
@@ -59,18 +61,18 @@ $pdo = null;
     <div class="container">
         <div class="row">
             <aside id="lp-kal" class="input-field col s12 m3">
+                <!-- Date picker -->
                 <input type="text" placeholder="Wähle ein Datum" class="datepicker">
-                <!-- Dropdown Trigger -->
-                <a class='dropdown-trigger btn' href='#' data-target='dropdown1'>Kategorien</a>
-
-                <!-- Dropdown Inhalt -->
-                <ul id='dropdown1' class='dropdown-content'>
-                    <li><a href="#!">Alle</a></li>
-                    <li class="divider" tabindex="-1"></li>
-                    <?php foreach ($kategorien as $kategorie) : ?>
-                        <li><a href="#!"><?php echo $kategorie->name; ?></a></li>
-                    <?php endforeach ?>
-                </ul>
+                <!-- Kategorie filter -->
+                <div class="input-field">
+                    <select id="lp-katfilter" class="browser-default" onchange="filterChanged(this.value)">
+                        <option value="0">alle</option>
+                        <?php foreach ($kategorien as $kategorie) : ?>
+                            <option value="<?php echo $kategorie->kategorie_id; ?>"><?php echo $kategorie->name; ?></option>
+                        <?php endforeach ?>
+                    </select>
+                    <!--<label>filtere nach Kategorien</label>-->
+                </div>
             </aside>
             <!-- Die Collection Elemente -->
             <div id="lp-card" class="col s12 m9">
@@ -86,7 +88,7 @@ $pdo = null;
                             $titel = '<b>Nicht verfügbar</b>';
                             $linkvis = 'hide';
                         };
-                        echo "<li id='set{$set->set_id}' class='collection-item avatar setlist'>";
+                        echo "<li id='set{$set->set_id}' class='collection-item avatar setlist {$set->kategorie_id}'>";
                         echo "<img src={$bild} alt='' class='circle'>";
                         echo "<span class='title'>{$titel}</span>";
                         echo "<p class='truncate'>{$beschrieb}</p>";
@@ -103,7 +105,7 @@ $pdo = null;
                         if (!$equipment->aktiv) {
                             $titel = '<b>Nicht verfügbar</b>';
                         };
-                        echo "<li id='eqp{$equipment->equipment_id}' class='collection-item avatar eqlist'>";
+                        echo "<li id='eqp{$equipment->equipment_id}' class='collection-item avatar eqlist {$equipment->kategorie_id}'>";
                         echo "<img src={$bild} alt='' class='circle'>";
                         echo "<span class='title'>{$titel}</span>";
                         echo "<p class='truncate'>{$beschrieb}</p>";

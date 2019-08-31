@@ -15,6 +15,11 @@ main{
     padding-top: 1.5em;
 }
 
+#lp-katfilter{
+    /*braucht styling da nicht materialize, sondern browser default*/
+    border-bottom: 1px solid grey;
+}
+
 header{
     display: flex;
     justify-content: center;
@@ -45,4 +50,9 @@ h5{
 }
 #inaktiv{
     display: none;
+}
+#lp-switch{
+    padding-top: 1em;
+}#lp-form{
+    padding-top: 2em;
 }
