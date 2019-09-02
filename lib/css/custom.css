@@ -51,8 +51,10 @@ h5{
 #inaktiv{
     display: none;
 }
-#lp-switch{
-    padding-top: 1em;
+@media screen and (max-width: 850px) {
+    #lp-switch{
+        padding: 2em 0;
+}
 }#lp-form{
     padding-top: 2em;
 }
