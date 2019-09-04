@@ -17,6 +17,7 @@ main{
 
 #lp-katfilter{
     /*braucht styling da nicht materialize, sondern browser default*/
+    
     border-bottom: 1px solid grey;
 }
 

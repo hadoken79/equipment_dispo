@@ -1,5 +1,6 @@
 <?php
 /*created by lp - 31.08.2019*/
+$headTitle = "Equipment erfassen";
 require_once('./base/header.php');
 $msg = '';
 $msgClass = '';

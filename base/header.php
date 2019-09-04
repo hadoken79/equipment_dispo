@@ -19,5 +19,5 @@ require_once('./db/PdoConnector.php');
 
 <body>
     <header class="z-depth-3">
-        <h5>Dispo-Equipment</h5>
+        <h5><?php echo $headTitle;?></h5>
     </header>

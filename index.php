@@ -1,5 +1,6 @@
 <?php
 /*created by lp - 27.07.2019*/
+$headTitle = "Dispo-Equipment";
 require_once('./base/header.php');
 
 
@@ -58,6 +59,7 @@ $pdo = null;
 
 ?>
 <main>
+<noscript><h4>Javascript scheint in Deinem Browser deaktiviert zu sein. <br>Diese Seite kann nicht ohne Javascript benutzt werden...</h4></main></noscript>
     <div class="container">
         <div class="row">
             <aside id="lp-kal" class="input-field col s12 m3">
