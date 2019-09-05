@@ -19,7 +19,7 @@ if (isset($_GET['success'])) {
 if (isset($_POST['action'])) {
     // POST val's
     $name = filter_var($_POST['name'], FILTER_SANITIZE_SPECIAL_CHARS);
-    $beschrieb = isset($_POST['beschrieb']) ? filter_var($_POST['beschrieb'], FILTER_SANITIZE_SPECIAL_CHARS) : null;
+    $beschrieb = isset($_POST['beschrieb']) ? filter_var($_POST['beschrieb'], FILTER_SANITIZE_SPECIAL_CHARS) : "N/A";
     $serien_nr = isset($_POST['serien_nr']) ? filter_var($_POST['serien_nr'], FILTER_SANITIZE_SPECIAL_CHARS) : null;
     $barcode = isset($_POST['barcode']) ? filter_var($_POST['barcode'], FILTER_SANITIZE_SPECIAL_CHARS) : null;
     $kaufjahr = isset($_POST['kaufjahr']) ? filter_var($_POST['kaufjahr'], FILTER_SANITIZE_SPECIAL_CHARS) : null;
@@ -31,9 +31,9 @@ if (isset($_POST['action'])) {
     $indispo = ($_POST['indispo'] == 'on') ? true : false;
     $aktiv = ($_POST['aktiv'] == 'on') ? true : false;
     $filename = isset($_POST['filename']) ? filter_var($_POST['filename'], FILTER_SANITIZE_SPECIAL_CHARS) : null;
-    $notiz = isset($_POST['notiz']) ? filter_var($_POST['notiz'], FILTER_SANITIZE_SPECIAL_CHARS) : null;
+    $notiz = isset($_POST['notiz']) ? filter_var($_POST['notiz'], FILTER_SANITIZE_SPECIAL_CHARS) : "N/A";
     $bild_id = '';
-    //wird nachher per reverenz an inserEquipment übergeben. variable wird nach erstellung für Lieferant_equipment benötigt
+    //wird nachher per Reverenz an inserEquipment übergeben. variable wird nach erstellung für Lieferant_equipment benötigt
     $equipment_id = '';
 
     // Obligatorische Felder prüfen.
@@ -181,7 +181,7 @@ function getLieferanten()
                     <label for="name">Equipment Name [genauer Typ]</label>
                 </div>
                 <div class="input-field col s12 m6 l4">
-                    <input id="beschrieb" name="beschrieb" type="text" maxlength="40" value="<?php echo isset($_POST['beschrieb']) ? $beschrieb : ''; ?>">
+                    <input id="beschrieb" name="beschrieb" type="text" maxlength="60" value="<?php echo isset($_POST['beschrieb']) ? $beschrieb : ''; ?>">
                     <label for="beschrieb">Beschrieb [zB dispo Funk]</label>
                 </div>
                 <div class="input-field col s12 m6 l4">
