@@ -15,10 +15,21 @@ main{
     padding-top: 1.5em;
 }
 
+
 #lp-katfilter{
-    /*braucht styling da nicht materialize, sondern browser default*/
-    
-    border-bottom: 1px solid grey;
+  /*
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    background-image: url('../../images/arrow_drop_down_black_192x192.png');*/
+    appearance: none;
+    border: none;
+    outline: none;
+    border-bottom: 1px solid #a3a5a8;
+}
+
+
+#lp-katfilter.option {
+    background-color: #26a69a;  
 }
 
 header{

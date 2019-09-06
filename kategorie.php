@@ -36,14 +36,14 @@ function insertKategorie($name)
 {
     $pdo = PdoConnector::getConn();
     $insertQuery = "INSERT INTO kategorie(
-         name,
+         name
         ) 
         VALUES
-        (?);";
+        (:name);";
 
     $stmt = $pdo->prepare($insertQuery);
 
-    if ($stmt->execute([$name])) {
+    if ($stmt->execute(['name' => $name])) {
 
         $pdo = null;
         return true;

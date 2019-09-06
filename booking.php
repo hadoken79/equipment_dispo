@@ -9,15 +9,13 @@ if (isset($_GET['checkdate'])) {
     $date = filter_var($_POST['date'], FILTER_SANITIZE_SPECIAL_CHARS);
     $user = filter_var($_POST['user'], FILTER_SANITIZE_SPECIAL_CHARS);
     bookSet($id, $date, $user);
-    //sleep(1000);
-    //echo "Set mit der id: " . $id . " wurde für " . $user . " am " . $date . " gebucht.<br> Technik wird informiert";
+
 } else if (isset($_POST['eqp'])) {
     $id = filter_var($_POST['eqp'], FILTER_SANITIZE_SPECIAL_CHARS);
     $date = filter_var($_POST['date'], FILTER_SANITIZE_SPECIAL_CHARS);
     $user = filter_var($_POST['user'], FILTER_SANITIZE_SPECIAL_CHARS);
     bookEquipment($id, $date, $user, false);
-    //sleep(1000);
-    //echo "Equipment mit der id: " . $eqp . " wurde für " . $user . " am " . $date . " gebucht.Technik wird informiert";
+
 }
 
 function checkforBooking($date)
@@ -46,11 +44,17 @@ function bookEquipment($id, $date, $user, $callFromSet)
     VALUES (?, ?, ?);";
     $stmt = $pdo->prepare($eqbookquery);
     if ($stmt->execute([$user, $date, $id])) {
+        //user erhält aus dieser Funktion nur eine Benachrichtigung bei einzelnem equipment.
+        //für Sets macht das die bookSet funktion.
         if (!$callFromSet) {
-            echo "Equipment wurde für " . $user . " am " . $date . " gebucht.<br> Technik wird informiert";
+            //test um langsame Verbindung und loader zu testen.
+            //sleep(5);
+            $sqldate = strtotime( $date );
+            $readabledate = date( 'd-M-Y', $sqldate );
+            echo "Equipment wurde für " . $user . " am " . $readabledate . " gebucht. <br> Technik wird informiert";
         };
     } else {
-        echo "Buchung hat nicht geklappt, bitte mit der Technik anschauen";
+        echo "Buchung hat nicht geklappt, <br>bitte mit der Technik in Verbindung setzten";
     }
     $pdo = null;
 }
@@ -64,7 +68,7 @@ function bookSet($id, $date, $user)
     $stmt->execute([$id]);
     $eqs_ids = $stmt->fetchAll();
 
-    //ruft für jedes equipment im Set die ogrige funktion auf
+    //ruft für jedes equipment im Set die obrige funktion auf
     foreach ($eqs_ids as $eq_id) {
         bookEquipment($eq_id->equipment_id, $date, $user, true);
     }
