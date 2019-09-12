@@ -61,6 +61,29 @@ if (isset($_POST['action'])) {
         $msgClass = 'card-panel red lighten-1';
     }
 }
+
+if (isset($_GET['id'])) {
+    //Call von Dashboard -> Form befüllen.
+    $equipment_id = filter_var($_GET['id'], FILTER_SANITIZE_SPECIAL_CHARS);
+
+    $equipment_data = getEquipment($equipment_id);
+
+    $name = $equipment_data->name;
+    $beschrieb = $equipment_data->beschrieb;
+    $serien_nr = $equipment_data->serien_nr;
+    $barcode = $equipment_data->barcode;
+    $kaufjahr = $equipment_data->kaufjahr;
+    $kaufpreis = $equipment_data->kaufpreis;
+    $kategorie_id = $equipment_data->kategorie_id;
+    $set_id = $equipment_data->set_id;
+    $lagerort_id = $equipment_data->lagerort_id;
+    $lieferant_id = getLieferant($equipment_id);
+    $indispo = $equipment_data->indispo;
+    $aktiv = $equipment_data->aktiv;
+    $notiz = $equipment_data->notiz;
+    $bild_id = $equipment_data->bild_id;
+}
+
 function insertFileName($filename)
 {
     $pdo = PdoConnector::getConn();
@@ -150,6 +173,17 @@ function getSets()
     return $selectSets;
 }
 
+function getEquipment($id)
+{
+    $pdo = PdoConnector::getConn();
+    $equipmentQuery = "SELECT * FROM equipment WHERE geloescht = false AND equipment_id = ?;";
+    $stmt = $pdo->prepare($equipmentQuery);
+    $stmt->execute([$id]);
+    $selectEquipment = $stmt->fetch();
+    $pdo = null;
+    return $selectEquipment;
+}
+
 function getLagerorte()
 {
     $pdo = PdoConnector::getConn();
@@ -165,6 +199,20 @@ function getLieferanten()
     $pdo = null;
     return $selectLieferanten;
 }
+
+function getLieferant($equipment_id)
+{
+
+
+    $pdo = PdoConnector::getConn();
+    $lieferantQuery = "SELECT lieferant_id, firma FROM lieferant 
+    WHERE geloescht = false AND lieferant_id = 
+    (SELECT lieferant_id FROM lieferant_equipment WHERE geloescht = false AND equipment_id = $equipment_id);";
+
+    $selectLieferant = $pdo->query($lieferantQuery)->fetchAll();
+    $pdo = null;
+    return $selectLieferant;
+}
 ?>
 
 <main>
@@ -177,57 +225,57 @@ function getLieferanten()
             <div class="row">
                 <div class="input-field col s12 m6 l4">
                     <input type="hidden" name="equipment_id" value="NULL">
-                    <input id="name" name="name" type="text" value="<?php echo isset($_POST['name']) ? $name : ''; ?>" maxlength="25" required>
+                    <input id="name" name="name" type="text" value="<?php echo (isset($_POST['name']) || isset($_GET['id'])) ? $name : ''; ?>" maxlength="25" required>
                     <label for="name">Equipment Name [genauer Typ]</label>
                 </div>
                 <div class="input-field col s12 m6 l4">
-                    <input id="beschrieb" name="beschrieb" type="text" maxlength="60" value="<?php echo isset($_POST['beschrieb']) ? $beschrieb : ''; ?>">
+                    <input id="beschrieb" name="beschrieb" type="text" maxlength="60" value="<?php echo isset($_POST['beschrieb']) || isset($_GET['id']) ? $beschrieb : ''; ?>">
                     <label for="beschrieb">Beschrieb [zB dispo Funk]</label>
                 </div>
                 <div class="input-field col s12 m6 l4">
-                    <input id="serie" name="serien_nr" type="text" maxlength="100" value="<?php echo isset($_POST['serien_nr']) ? $serien_nr : ''; ?>" required>
+                    <input id="serie" name="serien_nr" type="text" maxlength="100" value="<?php echo isset($_POST['serien_nr']) || isset($_GET['id']) ? $serien_nr : ''; ?>" required>
                     <label for="serie">Serien Nummer</label>
                 </div>
             </div>
             <div class="row">
                 <div class="input-field col s12 m6 l4">
-                    <input id="disabled" name="barcode" type="text" maxlength="100" value="<?php echo isset($_POST['barcode']) ? $barcode : ''; ?>">
+                    <input id="disabled" name="barcode" type="text" maxlength="100" value="<?php echo isset($_POST['barcode']) || isset($_GET['id']) ? $barcode : ''; ?>">
                     <label for="barcode">Barcode [inaktiv]</label>
                 </div>
                 <div class="input-field col s12 m6 l4">
                     <!--Google Chrome übernimmt das html5 maxlenght attr. nicht bei number. desshalb js-->
-                    <input id="kaufjahr" name="kaufjahr" type="number" value="<?php echo isset($_POST['kaufjahr']) ? $kaufjahr : ''; ?>" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength="4">
+                    <input id="kaufjahr" name="kaufjahr" type="number" value="<?php echo isset($_POST['kaufjahr']) || isset($_GET['id']) ? $kaufjahr : ''; ?>" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength="4">
                     <label for="kaufjahr">Kaufjahr</label>
                 </div>
                 <div class="input-field col s12 m6 l4">
-                    <input id="kaufpreis" name="kaufpreis" type="number" value="<?php echo isset($_POST['kaufpreis']) ? $kaufpreis : ''; ?>" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength="10">
+                    <input id="kaufpreis" name="kaufpreis" type="number" value="<?php echo isset($_POST['kaufpreis']) || isset($_GET['id']) ? $kaufpreis : ''; ?>" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength="10">
                     <label for="kaufpreis">Kaufpreis</label>
                 </div>
             </div>
             <div class="row">
                 <div class="input-field col s12 m6 l4">
                     <select name="kategorie_id">
-                        <option value="" disabled selected>wähle eine Option</option>
+                        <option value="" disabled <?php echo isset($_GET['id']) ? !is_null($kategorie_id) ? "" : "selected" : "selected"; ?>>wähle eine Option</option>
                         <?php foreach ($selectKategories as $kat) : ?>
-                            <option value="<?php echo $kat->kategorie_id; ?>"><?php echo $kat->name; ?></option>
+                            <option value="<?php echo $kat->kategorie_id; ?>" <?php echo isset($_GET['id']) ? $kat->kategorie_id === $kategorie_id ? "selected" : "" : ""; ?>><?php echo $kat->name; ?></option>
                         <?php endforeach; ?>
                     </select>
                     <label>Equipment Kategorie</label>
                 </div>
                 <div class="input-field col s12 m6 l4">
                     <select name="set_id">
-                        <option value="" disabled selected>wähle eine Option</option>
+                        <option value="" disabled <?php echo isset($_GET['id']) ? !is_null($set_id) ? "" : "selected" : "selected"; ?>>wähle eine Option</option>
                         <?php foreach ($selectSets as $set) : ?>
-                            <option value="<?php echo $set->set_id; ?>"><?php echo $set->name; ?></option>
+                            <option value="<?php echo $set->set_id; ?>" <?php echo isset($_GET['id']) ? $set->set_id === $set_id ? "selected" : "" : ""; ?>><?php echo $set->name; ?></option>
                         <?php endforeach; ?>
                     </select>
                     <label>falls Equipment Teil eines Sets</label>
                 </div>
                 <div class="input-field col s12 m6 l4">
                     <select name="lagerort_id">
-                        <option value="" disabled selected>wähle eine Option</option>
+                        <option value="" disabled <?php echo isset($_GET['id']) ? !is_null($lagerort_id) ? "" : "selected" : "selected"; ?>>wähle eine Option</option>
                         <?php foreach ($selectLagerorte as $lagerort) : ?>
-                            <option value="<?php echo $lagerort->lagerort_id; ?>"><?php echo $lagerort->name; ?></option>
+                            <option value="<?php echo $lagerort->lagerort_id; ?>" <?php echo isset($_GET['id']) ? $lagerort->lagerort_id === $lagerort_id ? "selected" : "" : ""; ?>><?php echo $lagerort->name; ?></option>
                         <?php endforeach; ?>
                     </select>
                     <label>Lagerort des Equipments</label>
@@ -236,7 +284,7 @@ function getLieferanten()
             <div class="row">
                 <div class="input-field col s12 m6 l4">
                     <select name="lieferant_id">
-                        <option value="" disabled selected>wähle eine Option</option>
+                        <option value="" disabled <?php echo isset($_GET['id']) ? !empty($lieferant_id) ? "" : "selected" : "selected"; ?>>wähle eine Option</option>
                         <?php foreach ($selectLieferanten as $lieferant) : ?>
                             <option value="<?php echo $lieferant->lieferant_id; ?>"><?php echo $lieferant->firma; ?></option>
                         <?php endforeach; ?>
@@ -246,7 +294,7 @@ function getLieferanten()
                 <div id="lp-switch" class="switch col s12 offset-s3 m3 offset-m1">
                     <label>
                         dispo | Aus
-                        <input name="indispo" type="checkbox">
+                        <input name="indispo" type="checkbox" <?php echo isset($_GET['id']) ? $indispo == true ? "checked='checked'" : "" : ""; ?>>
                         <span class="lever"></span>
                         Ein
                     </label>
@@ -254,7 +302,7 @@ function getLieferanten()
                 <div id="lp-switch" class="switch col s12 s12 offset-s3 m3 offset-m1">
                     <label>
                         aktiv | Aus
-                        <input name="aktiv" type="checkbox" checked="checked">
+                        <input name="aktiv" type="checkbox" <?php echo isset($_GET['id']) ? $aktiv == true ? "checked='checked'" : "" : ""; ?>>
                         <span class="lever"></span>
                         Ein
                     </label>
@@ -295,6 +343,7 @@ function getLieferanten()
         //console.log(instances[0].getSelectedValues());
     });
 </script>
+
 
 
 

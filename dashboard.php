@@ -1,6 +1,6 @@
 <?php
 /*created by lp - 31.08.2019*/
-$headTitle = "Equipment erfassen";
+$headTitle = "Dashboard";
 require_once('./base/header.php');
 $msg = '';
 $msgClass = '';
@@ -169,74 +169,26 @@ function getLieferanten()
 
 <main>
 
-<div class="row">
-                <div class="col s12 m6">
-                    <div class="col s12 m6 l4"> 
-                        <div class="card small">
-                            <div class="card-content">
-                            <span class="card-title">Card Title</span>
-                            <p>I am a very simple card. I am good at containing small bits of information.
-                            I am convenient because I require little markup to use effectively.</p>
-                            </div>
-                            <div class="card-action">
-                            <a class="btn-floating btn-medium waves-effect waves-light blue"><i class="material-icons">edit</i></a>
-                            <a class="btn-floating btn-medium waves-effect waves-light red"><i class="material-icons">delete</i></a>
-                            </div>
-                        </div> 
-                    </div>
-               
-                    <div class="col s12 m6 l4"> 
-                        <div class="card small">
-                            <div class="card-content">
-                            <span class="card-title truncate">Go Pro Hero-7</span>
-                            <p>I am a very simple card. I am good at containing small bits of information.
-                            I am convenient because I require little markup to use effectively.</p>
-                            <span class="activator grey-text text-darken-4">notizen<i class="material-icons right">more_vert</i></span>
-                            </div>
-                            <div class="card-reveal">
-                            <span class="card-title grey-text text-darken-4"><i class="material-icons right">close</i></span>
-                            <p>Here is some more information about this product that is only revealed once clicked on.</p>
-                            </div>
-                            <div class="card-action">
-                            <a class="btn-floating btn-medium waves-effect waves-light blue hoverable"><i class="material-icons">edit</i></a>
-                            <a class="btn-floating btn-medium waves-effect waves-light red hoverable"><i class="material-icons">delete</i></a>
-                            </div>
-                        </div> 
-                    </div>
+    <div class="row">
+        <div class="col s12 m6">
 
-                    <div class="col s12 m6 l4"> 
-                        <div class="card small">
-                            <div class="card-content">
-                            <span class="card-title">Card Title</span>
-                            <p>I am a very simple card. I am good at containing small bits of information.
-                            I am convenient because I require little markup to use effectively.</p>
-                            </div>
-                            <div class="card-action">
-                            <a class="btn-floating btn-medium waves-effect waves-light blue"><i class="material-icons">edit</i></a>
-                            <a class="btn-floating btn-medium waves-effect waves-light red"><i class="material-icons">delete</i></a>
-                            </div>
-                        </div> 
-                    </div>
-                    <div class="col s12 m6 l4"> 
-                    <div class="card small">
-                        <div class="card-content">
+            <div class="col s12 m6 l4">
+                <div class="card small">
+                    <div class="card-content">
                         <span class="card-title">Card Title</span>
                         <p>I am a very simple card. I am good at containing small bits of information.
-                        I am convenient because I require little markup to use effectively.</p>
-                        </div>
-                        <div class="card-action">
-                        <a class="btn-floating btn-medium waves-effect waves-light blue"><i class="material-icons">edit</i></a>
+                            I am convenient because I require little markup to use effectively.</p>
+                    </div>
+                    <div class="card-action">
+                        <a href="equipment.php?id=4" class="btn-floating btn-medium waves-effect waves-light blue"><i class="material-icons">remove_red_eye</i></a>
                         <a class="btn-floating btn-medium waves-effect waves-light red"><i class="material-icons">delete</i></a>
-                        </div>
-                    </div> 
                     </div>
                 </div>
-        
-       
-        
-            
-    
-</div>
+            </div>
+
+
+        </div>
+    </div>
 
 </main>
 
