@@ -1,6 +1,6 @@
 <?php
 /*created by lp - 31.08.2019*/
-$headTitle = "Equipment erfassen";
+$headTitle = "Equipment";
 require_once('./base/header.php');
 $msg = '';
 $msgClass = '';
@@ -18,6 +18,7 @@ if (isset($_GET['success'])) {
 
 if (isset($_POST['action'])) {
     // POST val's
+    var_dump($_POST);
     $name = filter_var($_POST['name'], FILTER_SANITIZE_SPECIAL_CHARS);
     $beschrieb = isset($_POST['beschrieb']) ? filter_var($_POST['beschrieb'], FILTER_SANITIZE_SPECIAL_CHARS) : "N/A";
     $serien_nr = isset($_POST['serien_nr']) ? filter_var($_POST['serien_nr'], FILTER_SANITIZE_SPECIAL_CHARS) : null;
@@ -30,33 +31,56 @@ if (isset($_POST['action'])) {
     $lieferant_id = isset($_POST['lieferant_id']) ? filter_var($_POST['lieferant_id'], FILTER_SANITIZE_SPECIAL_CHARS) : null;
     $indispo = ($_POST['indispo'] == 'on') ? true : false;
     $aktiv = ($_POST['aktiv'] == 'on') ? true : false;
-    $filename = isset($_POST['filename']) ? filter_var($_POST['filename'], FILTER_SANITIZE_SPECIAL_CHARS) : null;
+    $filename = isset($_POST['filename']) ? filter_var($_POST['filename'], FILTER_SANITIZE_SPECIAL_CHARS) : '';
     $notiz = isset($_POST['notiz']) ? filter_var($_POST['notiz'], FILTER_SANITIZE_SPECIAL_CHARS) : "N/A";
+    $update = isset($_POST['update']) ? filter_var($_POST['update'], FILTER_SANITIZE_SPECIAL_CHARS) : false;
     $bild_id = '';
-    //wird nachher per Reverenz an inserEquipment übergeben. variable wird nach erstellung für Lieferant_equipment benötigt
-    $equipment_id = '';
+    //wird nachher per Reverenz an insertEquipment übergeben. variable wird nach Erstellung für Lieferant_equipment benötigt. Wenn Formular als Update kommt, wird hier bereits eine id übergeben.
+    $equipment_id = isset($_POST['equipment_id']) ? filter_var($_POST['equipment_id'], FILTER_SANITIZE_SPECIAL_CHARS) : null;
 
     // Obligatorische Felder prüfen.
     if (!empty($name) && !empty($kategorie_id) && !empty($serien_nr)) {
 
         //Bevor das Equipment gespeichert werden kann, muss falls ein Equipmentbild gesetzt ist, noch dessen id erzeugt werden.
-        if (isset($filename)) {
+        if (!empty($filename)) {
             $bild_id = insertFilename($filename);
+            
         };
 
-        if (insertEquipment($equipment_id, $name, $beschrieb, $serien_nr, $barcode, $kaufjahr, $kaufpreis, $kategorie_id, $set_id, $lagerort_id, $indispo, $aktiv, $notiz, $bild_id)) {
+        if($update){
+           
+            if(updateEquipment($equipment_id, $name, $beschrieb, $serien_nr, $barcode, $kaufjahr, $kaufpreis, $kategorie_id, $set_id, $lagerort_id, $indispo, $aktiv, $notiz, $bild_id)){
+                if (isset($lieferant_id)) 
+                {
+                    updateLieferant_Equipment($lieferant_id, $equipment_id);
+                }
 
+                Header('Location: equipment.php?success=1');
+            }
+
+        }else{
+            if(insertEquipment($equipment_id, $name, $beschrieb, $serien_nr, $barcode, $kaufjahr, $kaufpreis, $kategorie_id, $set_id, $lagerort_id, $indispo, $aktiv, $notiz, $bild_id)){ 
+               
+                //falls ein Lieferant gesetzt wurde, kann jetzt noch der Lieferant_Equipment-Table ergänzt werden
+                if (isset($lieferant_id)) 
+                {
+                    insertLieferant_Equipment($lieferant_id, $equipment_id);
+                }
+                
             Header('Location: equipment.php?success=1');
-
-            //falls ein Lieferant gesetzt wurde, kann jetzt noch der Lieferant_Equipment-Table ergänzt werden
-            if (isset($lieferant_id)) {
-                insertLieferant_Equipment($lieferant, $equipment_id);
-            };
-        } else {
+            
+            } else {
             $msg = 'Beim Versuch in die Datenbank zu speichern ist ein Fehler aufgetreten. ev. gibt es ein Verbindungsproblem.';
             $msgClass = 'card-panel red lighten-1';
+            }
         }
+
+            
+     
+
+
     } else {
+        //fallback, falls browser html5 required nicht unterstützt.
         $msg = 'Name, Kategorie und Seriennummer sind zwingend';
         $msgClass = 'card-panel red lighten-1';
     }
@@ -97,6 +121,10 @@ function insertFileName($filename)
         $bild_id = $pdo->query("SELECT bild_id FROM equipmentbild WHERE filename = $filename");
         $pdo = null;
         return $bild_id;
+    }else{
+        $pdo = null;
+        $msg = 'Fehler beim Versuch Filename in Datenbank zu speichern';
+        $msgClass = 'card-panel red lighten-1';
     }
 }
 
@@ -108,10 +136,28 @@ function insertLieferant_Equipment($lieferant_id, $equipment_id)
             equipment_id
         )
         VALUES
-        (:equipment_id)
-        (:lieferant_id);";
+        (:lieferant_id,
+        :equipment_id);";
     $stmt = $pdo->prepare($insertQuery);
-    $stmt->execute(['equipment_id' => $equipment_id, 'lieferant_id' => $lieferant_id]);
+    if(!$stmt->execute(['equipment_id' => $equipment_id, 'lieferant_id' => $lieferant_id]))
+    {
+        $msg = 'Fehler beim Versuch Lieferant zu Equipment in Datenbank zu speichern';
+        $msgClass = 'card-panel red lighten-1'; 
+    }
+    $pdo = null;
+}
+
+function updateLieferant_Equipment($lieferant_id, $equipment_id)
+{
+    $pdo = PdoConnector::getConn();
+    $insertQuery = "UPDATE lieferant_equipment SET lieferant_id = :lieferant_id WHERE equipment_id = :equipment_id;";
+       
+    $stmt = $pdo->prepare($insertQuery);
+    if(!$stmt->execute(['equipment_id' => $equipment_id, 'lieferant_id' => $lieferant_id]))
+    {
+        $msg = 'Fehler beim Versuch Lieferant zu Equipment in Datenbank zu speichern';
+        $msgClass = 'card-panel red lighten-1'; 
+    }
     $pdo = null;
 }
 
@@ -151,7 +197,42 @@ function insertEquipment(&$equipment_id, $name, $beschrieb, $serien_nr, $barcode
     $stmt = $pdo->prepare($insertQuery);
 
     if ($stmt->execute(['name' => $name, 'beschrieb' => $beschrieb, 'notiz' => $notiz, 'serien_nr' => $serien_nr, 'barcode' => $barcode, 'indispo' => $indispo, 'aktiv' => $aktiv, 'kaufjahr' => $kaufjahr, 'kaufpreis' => $kaufpreis, 'set_id' => $set_id, 'kategorie_id' => $kategorie_id, 'bild_id' => $bild_id, 'lagerort_id' => $lagerort_id])) {
-        $equipment_id = $pdo->query("SELECT equipment_id FROM equipment WHERE name == $name AND beschrieb = $beschrieb AND serien_nr == $serien_nr AND geloescht == false");
+        $idQuery = "SELECT equipment_id FROM equipment WHERE serien_nr = ? AND geloescht = false;";
+        $stmt = $pdo->prepare($idQuery);
+        $stmt->execute([$serien_nr]);
+
+        $idObj = $stmt->fetch();
+        $equipment_id = $idObj->equipment_id;
+       
+        $pdo = null;
+        return true;
+    }
+}
+
+function updateEquipment(&$equipment_id, $name, $beschrieb, $serien_nr, $barcode, $kaufjahr, $kaufpreis, $kategorie_id, $set_id, $lagerort_id, $indispo, $aktiv, $notiz, $bild_id)
+{
+    $pdo = PdoConnector::getConn();
+    $updateQuery = "UPDATE equipment SET
+            `name` = :name,
+            beschrieb = :beschrieb,
+            notiz = :notiz,
+            serien_nr = :serien_nr,
+            barcode = :barcode,
+            indispo = :indispo,
+            aktiv = :aktiv,
+            kaufjahr = :kaufjahr,
+            kaufpreis = :kaufpreis,
+            set_id = :set_id,
+            kategorie_id = :kategorie_id,
+            bild_id = :bild_id,
+            lagerort_id = :lagerort_id 
+            WHERE equipment_id = :equipment_id";
+     
+
+    $stmt = $pdo->prepare($updateQuery);
+
+    if ($stmt->execute(['name' => $name, 'beschrieb' => $beschrieb, 'notiz' => $notiz, 'serien_nr' => $serien_nr, 'barcode' => $barcode, 'indispo' => $indispo, 'aktiv' => $aktiv, 'kaufjahr' => $kaufjahr, 'kaufpreis' => $kaufpreis, 'set_id' => $set_id, 'kategorie_id' => $kategorie_id, 'bild_id' => $bild_id, 'lagerort_id' => $lagerort_id, 'equipment_id' => $equipment_id])) {
+       
         $pdo = null;
         return true;
     }
@@ -202,8 +283,6 @@ function getLieferanten()
 
 function getLieferant($equipment_id)
 {
-
-
     $pdo = PdoConnector::getConn();
     $lieferantQuery = "SELECT lieferant_id, firma FROM lieferant 
     WHERE geloescht = false AND lieferant_id = 
@@ -212,6 +291,7 @@ function getLieferant($equipment_id)
     $selectLieferant = $pdo->query($lieferantQuery)->fetchAll();
     $pdo = null;
     return $selectLieferant;
+    
 }
 ?>
 
@@ -224,7 +304,8 @@ function getLieferant($equipment_id)
         <form id="lp-form" method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>">
             <div class="row">
                 <div class="input-field col s12 m6 l4">
-                    <input type="hidden" name="equipment_id" value="NULL">
+                    <input type="hidden" name="equipment_id" value="<?php echo isset($_GET['id']) ? $_GET['id'] : "NULL"?>">
+                    <input type="hidden" name="update" value="<?php echo isset($_GET['id']) ? true : false;?>"><!--Bei Update gleiches Formaular, aber andere abfrage 'UPDATE'-->
                     <input id="name" name="name" type="text" value="<?php echo (isset($_POST['name']) || isset($_GET['id'])) ? $name : ''; ?>" maxlength="25" required>
                     <label for="name">Equipment Name [genauer Typ]</label>
                 </div>
@@ -301,8 +382,8 @@ function getLieferant($equipment_id)
                 </div>
                 <div id="lp-switch" class="switch col s12 s12 offset-s3 m3 offset-m1">
                     <label>
-                        aktiv | Aus
-                        <input name="aktiv" type="checkbox" <?php echo isset($_GET['id']) ? $aktiv == true ? "checked='checked'" : "" : ""; ?>>
+                        aktiv | Aus <!-- default aktiv-->
+                        <input name="aktiv" type="checkbox" <?php echo isset($_GET['id']) ? $aktiv == true ? "checked='checked'" : "" : "checked='checked'"; ?>>
                         <span class="lever"></span>
                         Ein
                     </label>
@@ -315,16 +396,16 @@ function getLieferant($equipment_id)
                         <input type="file" name="filename">
                     </div>
                     <div class="file-path-wrapper">
-                        <input class="file-path validate" type="text" value="<?php echo isset($_POST['filename']) ? $filename : ''; ?>" placeholder="optionales Equipmentbild">
+                        <input class="file-path validate" type="text" value="<?php echo isset($_POST['filename']) || isset($_GET['id']) ? $filename ? $filename: '' : ''; ?>" placeholder="optionales Equipmentbild">
                     </div>
                 </div>
                 <div class="input-field col s12 m8">
-                    <textarea id="notiz" name="notiz" class="materialize-textarea" maxlength="255"><?php echo isset($_POST['notiz']) ? $notiz : ''; ?></textarea>
+                    <textarea id="notiz" name="notiz" class="materialize-textarea" maxlength="255"><?php echo isset($_POST['notiz']) || isset($_GET['id']) ? $notiz ? $notiz : '' : ''; ?></textarea>
                     <label for="notiz">Interne Infos [optional]</label>
                 </div>
             </div>
             <div class="row">
-                <button class="btn waves-effect waves-light" type="submit" name="action">Speichern
+                <button class="btn waves-effect waves-light" type="submit" name="action"><?php echo isset($_GET['id']) ? "Update" : "Speichern"?>
                     <i class="material-icons right">send</i>
                 </button>
             </div>

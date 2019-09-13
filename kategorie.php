@@ -1,6 +1,6 @@
 <?php
 /*created by lp - 31.08.2019*/
-$headTitle = "Lieferant erfassen";
+$headTitle = "Kategorie";
 require_once('./base/header.php');
 $msg = '';
 $msgClass = '';
