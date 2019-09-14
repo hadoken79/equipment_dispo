@@ -5,15 +5,15 @@ require_once('conf\config.php');
 class PdoConnector
 {
     private static $pdo = null;
-    private static $dsn = 'mysql:host='.HOST.';dbname='.DB;
+    private static $dsn = 'mysql:host=' . HOST . ';dbname=' . DB;
 
-    private function __construct(){
+    private function __construct()
+    { }
 
-    }
-    
-    public static function getConn(){
-        if(!isset(self::$pdo)){
-            self::$pdo = new PDO(self::$dsn, USER, PWD);
+    public static function getConn()
+    {
+        if (!isset(self::$pdo)) {
+            self::$pdo = new PDO(self::$dsn, USER, PWD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"));
             //setze default fetchmode to object | kann in jeder ->fetch(Anweisung überschrieben werden)
             self::$pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
             //echo "created new instance of pdo<br>";
@@ -21,5 +21,3 @@ class PdoConnector
         return self::$pdo;
     }
 }
-
-?>
