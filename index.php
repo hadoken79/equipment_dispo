@@ -64,21 +64,21 @@ $pdo = null;
 </main>
 </noscript>
 <div class="container">
-<div class="progress hide">
-<div class="indeterminate"></div>
-</div>
+    <div class="progress hide">
+        <div class="indeterminate"></div>
+    </div>
     <div class="row">
         <aside id="lp-kal" class="input-field col s12 m3">
             <!-- Date picker -->
             <input type="text" placeholder="Wähle ein Datum" class="datepicker">
             <!-- Kategorie filter -->
             <div class="input-field">
-                <select id="lp-katfilter" class="browser-default"onchange="filterChanged(this.value)">
+                <select id="lp-katfilter" class="browser-default" onchange="filterChanged(this.value)">
                     <option value="0">alle</option>
                     <?php foreach ($kategorien as $kategorie) : ?>
                         <option value="<?php echo $kategorie->kategorie_id; ?>"><?php echo $kategorie->name; ?></option>
                     <?php endforeach ?>
-            </select>
+                </select>
                 <!--<label>filtere nach Kategorien</label>-->
             </div>
         </aside>
