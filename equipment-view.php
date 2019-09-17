@@ -5,6 +5,7 @@ require_once('./base/header.php');
 
 
 //TODO AUTO-Switch für ASC und DESC einfügen
+
 $order = 'name';
 $dir = 'ASC';
 
