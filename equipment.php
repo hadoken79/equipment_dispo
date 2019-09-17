@@ -12,8 +12,16 @@ $selectLagerorte = getLagerorte();
 $selectLieferanten = getLieferanten();
 
 if (isset($_GET['success'])) {
-    $msg = 'Eintrag wurde erfolgreich erstellt';
-    $msgClass = 'card-panel teal accent-2';
+
+        switch ($_GET['success']) {
+            case 1:
+                $msg = 'Eintrag wurde erfolgreich erstellt';
+                $msgClass = 'card-panel teal accent-2';
+                break;
+            case 2:
+                $msg = 'Eintrag wurde erfolgreich gelöscht';
+                $msgClass = 'card-panel teal accent-2';
+        }
 }
 
 if (isset($_POST['action'])) {
@@ -75,6 +83,13 @@ if (isset($_POST['action'])) {
         //fallback, falls browser html5 required nicht unterstützt.
         $msg = 'Name und Kategorie sind zwingend';
         $msgClass = 'card-panel red lighten-1';
+    }
+}
+
+if(isset($_POST['delete'])){
+    $equipment_id = isset($_POST['equipment_id']) ? filter_var($_POST['equipment_id'], FILTER_SANITIZE_SPECIAL_CHARS): null;
+    if(deleteEquipment($equipment_id)){
+        Header('Location: equipment.php?success=2');
     }
 }
 
@@ -282,9 +297,11 @@ function getLieferant($equipment_id)
     $pdo = PdoConnector::getConn();
     $lieferantQuery = "SELECT lieferant_id, firma FROM lieferant 
     WHERE geloescht = false AND lieferant_id = 
-    (SELECT lieferant_id FROM lieferant_equipment WHERE geloescht = false AND equipment_id = $equipment_id);";
+    (SELECT lieferant_id FROM lieferant_equipment WHERE geloescht = false AND equipment_id = ?);";
 
-    $selectLieferant = $pdo->query($lieferantQuery)->fetchAll();
+    $stmt = $pdo->prepare($lieferantQuery);
+    $stmt->execute([$equipment_id]);
+    $selectLieferant = $stmt->fetchAll();
     $pdo = null;
     return $selectLieferant;
 }
@@ -293,6 +310,13 @@ function getFilename($bild_id)
 {
     return '';
 }
+
+function deleteEquipment($equipment_id)
+{
+    echo "delete " .$equipment_id;
+    return true;
+}
+
 ?>
 
 <main>
@@ -410,6 +434,9 @@ function getFilename($bild_id)
                 <button class="btn waves-effect waves-light" type="submit" name="action"><?php echo isset($_GET['id']) ? "Update" : "Speichern" ?>
                     <i class="material-icons right">send</i>
                 </button>
+                <?php echo isset($_GET['id']) ? "<button id='lp-del' class='btn waves-effect waves-light red darken-3 right' type='submit' name='delete'>Löschen
+                    <i class='material-icons right'>delete</i>
+                </button>" : ""; ?>
             </div>
     </div>
     </form>
@@ -425,6 +452,16 @@ function getFilename($bild_id)
         const instances = M.FormSelect.init(elems, options);
         //console.log(instances[0].getSelectedValues());
     });
+    const frm = document.getElementById('lp-form');
+    const delButton = document.getElementById('lp-del');
+    delButton.addEventListener('click', function(){
+        if(confirm('delete?')){
+        alert('LÖSCHEN!!!!!')
+    }
+    });
+    frm.subbmit();
+    
+
 </script>
 
 
