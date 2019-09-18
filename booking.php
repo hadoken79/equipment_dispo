@@ -1,5 +1,6 @@
 <?php
 require_once('./db/PdoConnector.php');
+session_start();
 
 if (isset($_GET['checkdate'])) {
     $date = $_GET['checkdate'];
@@ -7,13 +8,13 @@ if (isset($_GET['checkdate'])) {
 } else if (isset($_POST['set'])) {
     $id = filter_var($_POST['set'], FILTER_SANITIZE_SPECIAL_CHARS);
     $date = filter_var($_POST['date'], FILTER_SANITIZE_SPECIAL_CHARS);
-    $user = filter_var($_POST['user'], FILTER_SANITIZE_SPECIAL_CHARS);
+    $user = $_SESSION['user'];
     bookSet($id, $date, $user);
 
 } else if (isset($_POST['eqp'])) {
     $id = filter_var($_POST['eqp'], FILTER_SANITIZE_SPECIAL_CHARS);
     $date = filter_var($_POST['date'], FILTER_SANITIZE_SPECIAL_CHARS);
-    $user = filter_var($_POST['user'], FILTER_SANITIZE_SPECIAL_CHARS);
+    $user = $_SESSION['user'];
     bookEquipment($id, $date, $user, false);
 
 }
@@ -51,7 +52,7 @@ function bookEquipment($id, $date, $user, $callFromSet)
             //sleep(5);
             $sqldate = strtotime( $date );
             $readabledate = date( 'd-M-Y', $sqldate );
-            echo "Equipment wurde für " . $user . " am " . $readabledate . " gebucht. <br> Technik wird informiert";
+            echo 'Equipment wurde für ' . $user .  ' <wbr>am '  . $readabledate . ' gebucht. <br> Technik wird informiert';
         };
     } else {
         echo "Buchung hat nicht geklappt, <br>bitte mit der Technik in Verbindung setzten";
@@ -61,14 +62,19 @@ function bookEquipment($id, $date, $user, $callFromSet)
 
 
 function bookSet($id, $date, $user)
-{
+{   
     $pdo = PdoConnector::getConn();
     $eq_inset_query = "SELECT equipment_id FROM equipment WHERE set_id =?;";
     $stmt = $pdo->prepare($eq_inset_query);
     $stmt->execute([$id]);
     $eqs_ids = $stmt->fetchAll();
+    
+    if(empty($eqs_ids)){
+        echo 'Diesem Set scheint kein Equipment zugewiesen zu sein. <br> Bitte Technik kontaktieren.';
+        exit();
+    }
 
-    //ruft für jedes equipment im Set die obrige funktion auf
+    //ruft für jedes equipment im Set die obrige funktion auf.
     foreach ($eqs_ids as $eq_id) {
         bookEquipment($eq_id->equipment_id, $date, $user, true);
     }
