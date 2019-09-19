@@ -2,6 +2,9 @@
 /*created by lp - 31.08.2019*/
 $headTitle = "Lieferant";
 require_once('./base/header.php');
+if (!isset($_SESSION['grp']) || @$_SESSION['grp'] != 'adm') {
+    Header('Location: login.php');
+}
 $msg = '';
 $msgClass = '';
 

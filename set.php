@@ -2,6 +2,9 @@
 /*created by lp - 31.08.2019*/
 $headTitle = "Set";
 require_once('./base/header.php');
+if (!isset($_SESSION['grp']) || @$_SESSION['grp'] != 'adm') {
+    Header('Location: login.php');
+}
 $msg = '';
 $msgClass = '';
 
@@ -57,6 +60,13 @@ if (isset($_POST['action'])) {
     } else {
         $msg = 'Name und Kategorie sind zwingend';
         $msgClass = 'card-panel red lighten-1';
+    }
+}
+
+if (isset($_POST['delete'])) {
+    $set_id = isset($_POST['set_id']) ? filter_var($_POST['set_id'], FILTER_SANITIZE_SPECIAL_CHARS) : null;
+    if (deleteSet($set_id)) {
+        Header('Location: set.php?success=2');
     }
 }
 
@@ -176,6 +186,23 @@ function getFilename($bild_id)
     return $filename;
 }
 
+function deleteSet($set_id)
+{
+    $pdo = PdoConnector::getConn();
+    $updateQuery = "UPDATE set_ SET
+            geloescht = True
+            WHERE set_id = :set_id";
+
+
+    $stmt = $pdo->prepare($updateQuery);
+
+    if ($stmt->execute(['set_id' => $set_id])) {
+
+        $pdo = null;
+        return true;
+    }
+}
+
 ?>
 
 <main>
@@ -244,7 +271,24 @@ function getFilename($bild_id)
                 <button class="btn waves-effect waves-light" type="submit" name="action"><?php echo isset($_GET['id']) ? "Update" : "Speichern" ?>
                     <i class="material-icons right">send</i>
                 </button>
+                <?php echo isset($_GET['id']) ? "<button data-target='modal1' id='lp-del' class='btn waves-effect waves-light red darken-3 right modal-trigger'>Löschen
+                    <i class='material-icons right'>delete</i>
+                </button>" : ""; ?>
             </div>
+
+            <!-- Modal Structure -->
+            <div id="modal1" class="modal">
+                <div class="modal-content">
+                    <h4>Löschen</h4>
+                    <p>Wilst Du das Equipment permanent löschen?</p>
+                </div>
+                <div class="modal-footer">
+                    <button id='lp-del' class='btn waves-effect waves-light red darken-3 right' type='submit' name='delete'>Löschen
+                        <i class='material-icons right'>delete</i>
+                    </button>
+                </div>
+            </div>
+    </div>
     </div>
     </form>
     </div>
@@ -258,6 +302,9 @@ function getFilename($bild_id)
         const elems = document.querySelectorAll('select');
         const instances = M.FormSelect.init(elems, options);
         //console.log(instances[0].getSelectedValues());
+        const optionsMod = {};
+        const elems2 = document.querySelectorAll('.modal');
+        const modal = M.Modal.init(elems2, options);
     });
 </script>
 

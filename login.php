@@ -14,55 +14,51 @@ if (isset($_POST['action'])) {
     $pwd = (isset($_POST['password']) && !empty($_POST['password'])) ? $_POST['password'] : null;
     $userdn = '';
     $grp = '';
-    
+
     //user bekannt?
     if (authUser($user, $fulluser, $userdn, $pwd)) {
         $_SESSION['user'] = $fulluser;
         //falls Admin, menü aktiv || für test ad wird nach gruppe mathematicians gesucht
-        if(checkGroup($user, 'mathematicians')){
+        if (checkGroup($user, 'mathematicians')) {
             $_SESSION['grp'] = 'adm';
         }
         Header('Location: index.php');
-        
-    }else{
+    } else {
         $msg = 'Username oder Passwort falsch';
         $msgClass = 'card-panel red lighten-1';
-        @$_SESSION['fail'] ++;
-        if($_SESSION['fail'] >= 3){
+        @$_SESSION['fail']++;
+        if ($_SESSION['fail'] >= 3) {
             $msg = 'zu viele Fehlversuche | Login für 30 Sekunden inaktiv';
             $msgClass = 'card-panel red lighten-1';
             $sendactiv = 'disabled';
         }
-
     }
 }
 function authUser($user, &$fulluser, &$userdn, $pwd)
 {
     $ldap_dom = ADDOM;
-    $ldap_dn = 'uid='.$user.',dc=example,dc=com';
     $ldap_rdn = ADRDN;
+    $ldap_dn = 'uid=' . $user . ',' . $ldap_rdn;
     $ldap_password = $pwd;
 
     $ldap_con = ldap_connect($ldap_dom);
     ldap_set_option($ldap_con, LDAP_OPT_PROTOCOL_VERSION, 3);
-    
 
-    if(@ldap_bind($ldap_con, $ldap_dn, $ldap_password)){
+
+    if (@ldap_bind($ldap_con, $ldap_dn, $ldap_password)) {
         $filter = "uid={$user}";
         $result = ldap_search($ldap_con, $ldap_rdn, $filter) or exit("unable to search");
         $entries = ldap_get_entries($ldap_con, $result);
-       
-      
+
+
         $fulluser = $entries[0]['cn'][0];
         $userdn = $entries[0]['dn'][0];
         ldap_unbind($ldap_con);
-       
+
         return true;
-        
-    }else{
+    } else {
         return false;
     }
-
 }
 
 function checkGroup($user, $group)
@@ -85,17 +81,16 @@ function checkGroup($user, $group)
     //print_r($entries[0]['uniquemember']);
     //echo '<pre>';
     //echo '<hr>';
-    if(in_array($user_dn, $entries[0]['uniquemember'])){
+    if (in_array($user_dn, $entries[0]['uniquemember'])) {
         return true;
-    }else{
+    } else {
         return false;
     }
-
-
 }
 
 
-function letEmWait(){
+function letEmWait()
+{
     $_SESSION['fail'] = 0;
     header('refresh: 30; url=login.php');
 }
@@ -115,7 +110,7 @@ function letEmWait(){
 
 <body>
     <header>
-    <h5 class="white-text center-align">login</h5>
+        <h5 class="white-text center-align">login</h5>
     </header>
     <main>
 
@@ -137,7 +132,7 @@ function letEmWait(){
                     </div>
                 </div>
                 <div class="row center-align">
-                    <button class="btn waves-effect waves-light <?php echo $sendactiv;?>" type="submit" name="action">login
+                    <button class="btn waves-effect waves-light <?php echo $sendactiv; ?>" type="submit" name="action">login
                         <i class="material-icons right">send</i>
                     </button>
                 </div>
@@ -149,7 +144,7 @@ function letEmWait(){
     </main>
 
     <?php
-    if(!empty($sendactiv)){
+    if (!empty($sendactiv)) {
         letEmWait();
     }
     require_once('./base/footer.php');

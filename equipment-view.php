@@ -2,6 +2,9 @@
 /*created by lp - 15.09.2019*/
 $headTitle = "Equipment-Übersicht";
 require_once('./base/header.php');
+if (!isset($_SESSION['grp']) || @$_SESSION['grp'] != 'adm') {
+    Header('Location: login.php');
+}
 
 
 //TODO AUTO-Switch für ASC und DESC einfügen
@@ -46,10 +49,10 @@ function getAllEquipments($order, $dir)
             <thead>
                 <tr>
                     <th></th>
-                    <th><a class="waves-effect href="<?php echo $_SERVER['PHP_SELF'] . '?sort=name&dir='.(($dir === 'ASC') ? 'DESC' : 'ASC'); ?>">Name</a> </th>
-                    <th><a class="waves-effect" href="<?php echo $_SERVER['PHP_SELF'] . '?sort=beschrieb&dir=' .(($dir === 'ASC') ? 'DESC' : 'ASC'); ?>">Beschrieb</a> </th>
-                    <th><a class="waves-effect" href="<?php echo $_SERVER['PHP_SELF'] . '?sort=kaufjahr&dir='.(($dir === 'ASC') ? 'DESC' : 'ASC'); ?>">Kaufjahr</a> </th>
-                    <th><a class="waves-effect" href="<?php echo $_SERVER['PHP_SELF'] . '?sort=serien_nr&dir='.(($dir === 'ASC') ? 'DESC' : 'ASC'); ?>">Seriennummer</a> </th>
+                    <th><a class="waves-effect" href="<?php echo $_SERVER['PHP_SELF'] . '?sort=name&dir=' . (($dir === 'ASC') ? 'DESC' : 'ASC'); ?>">Name</a> </th>
+                    <th><a class="waves-effect" href="<?php echo $_SERVER['PHP_SELF'] . '?sort=beschrieb&dir=' . (($dir === 'ASC') ? 'DESC' : 'ASC'); ?>">Beschrieb</a> </th>
+                    <th><a class="waves-effect" href="<?php echo $_SERVER['PHP_SELF'] . '?sort=kaufjahr&dir=' . (($dir === 'ASC') ? 'DESC' : 'ASC'); ?>">Kaufjahr</a> </th>
+                    <th><a class="waves-effect" href="<?php echo $_SERVER['PHP_SELF'] . '?sort=serien_nr&dir=' . (($dir === 'ASC') ? 'DESC' : 'ASC'); ?>">Seriennummer</a> </th>
                 </tr>
             </thead>
 
@@ -73,13 +76,15 @@ function getAllEquipments($order, $dir)
 
 <script>
     //Tooltip
-     document.addEventListener('DOMContentLoaded', function() {
-         const options = {enterDelay: 400};
-    
-    const elems = document.querySelectorAll('.tooltipped');
-    const tipps = M.Tooltip.init(elems, options);
-  });
-    </script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const options = {
+            enterDelay: 400
+        };
+
+        const elems = document.querySelectorAll('.tooltipped');
+        const tipps = M.Tooltip.init(elems, options);
+    });
+</script>
 
 <?php
 

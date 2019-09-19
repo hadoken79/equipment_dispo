@@ -2,6 +2,9 @@
 /*created by lp - 31.08.2019*/
 $headTitle = "Equipment";
 require_once('./base/header.php');
+if (!isset($_SESSION['grp']) || @$_SESSION['grp'] != 'adm') {
+    Header('Location: login.php');
+}
 $msg = '';
 $msgClass = '';
 
@@ -313,8 +316,19 @@ function getFilename($bild_id)
 
 function deleteEquipment($equipment_id)
 {
-    echo "delete " . $equipment_id;
-    return true;
+    $pdo = PdoConnector::getConn();
+    $updateQuery = "UPDATE equipment SET
+            geloescht = True
+            WHERE equipment_id = :equipment_id";
+
+
+    $stmt = $pdo->prepare($updateQuery);
+
+    if ($stmt->execute(['equipment_id' => $equipment_id])) {
+
+        $pdo = null;
+        return true;
+    }
 }
 
 ?>
@@ -434,9 +448,22 @@ function deleteEquipment($equipment_id)
                     <button class="btn waves-effect waves-light" type="submit" name="action"><?php echo isset($_GET['id']) ? "Update" : "Speichern" ?>
                         <i class="material-icons right">send</i>
                     </button>
-                    <?php echo isset($_GET['id']) ? "<button id='lp-del' class='btn waves-effect waves-light red darken-3 right' type='submit' name='delete'>Löschen
+                    <?php echo isset($_GET['id']) ? "<button data-target='modal1' id='lp-del' class='btn waves-effect waves-light red darken-3 right modal-trigger'>Löschen
                     <i class='material-icons right'>delete</i>
                 </button>" : ""; ?>
+                </div>
+
+                <!-- Modal Structure -->
+                <div id="modal1" class="modal">
+                    <div class="modal-content">
+                        <h4>Löschen</h4>
+                        <p>Wilst Du das Equipment permanent löschen?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button id='lp-del' class='btn waves-effect waves-light red darken-3 right' type='submit' name='delete'>Löschen
+                            <i class='material-icons right'>delete</i>
+                        </button>
+                    </div>
                 </div>
         </div>
         </form>
@@ -451,6 +478,9 @@ function deleteEquipment($equipment_id)
             const elems = document.querySelectorAll('select');
             const instances = M.FormSelect.init(elems, options);
             //console.log(instances[0].getSelectedValues());
+            const optionsMod = {};
+            const elems2 = document.querySelectorAll('.modal');
+            const modal = M.Modal.init(elems2, options);
         });
     </script>
 

@@ -2,6 +2,9 @@
 /*created by lp - 31.08.2019*/
 $headTitle = "Dashboard";
 require_once('./base/header.php');
+if (!isset($_SESSION['grp']) || @$_SESSION['grp'] != 'adm') {
+    Header('Location: login.php');
+}
 $msg = '';
 $msgClass = '';
 
@@ -169,23 +172,89 @@ function getLieferanten()
 
 <main>
 
-    <div class="row">
-        <div class="col s12 m6">
-
-            <div class="col s12 m6 l4">
-                <div class="card small">
+    <div class="container">
+        <div class="row">
+            <div class="col s12 m12">
+                <div class="card medium blue-grey lighten-1 white-text">
                     <div class="card-content">
-                        <span class="card-title">Card Title</span>
+                        <span class="card-title">Buchungen</span>
+                        <ul class="collection">
+                            <li class="collection-item black-text">
+                                <div>Alvin<a href="#!" class="secondary-content"><i class="material-icons">delete</i></a></div>
+                            </li>
+                            <li class="collection-item black-text">
+                                <div>Alvin<a href="#!" class="secondary-content"><i class="material-icons">delete</i></a></div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12 m6">
+                <div class="card blue-grey lighten-1">
+                    <div class="card-content white-text">
+                        <span class="card-title">Equipment</span>
                         <p>I am a very simple card. I am good at containing small bits of information.
                             I am convenient because I require little markup to use effectively.</p>
                     </div>
                     <div class="card-action">
-                        <a href="equipment.php?id=4" class="btn-floating btn-medium waves-effect waves-light blue"><i class="material-icons">remove_red_eye</i></a>
-                        <a class="btn-floating btn-medium waves-effect waves-light red"><i class="material-icons">delete</i></a>
+                        <a href="equipment-view.php">Verwalten</a>
                     </div>
                 </div>
             </div>
-
+            <div class="col s12 m6">
+                <div class="card blue-grey lighten-1">
+                    <div class="card-content white-text">
+                        <span class="card-title">Sets</span>
+                        <p>I am a very simple card. I am good at containing small bits of information.
+                            I am convenient because I require little markup to use effectively.</p>
+                    </div>
+                    <div class="card-action">
+                        <a href="set-view.php">Verwalten</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12 m6">
+                <div class="card blue-grey lighten-1">
+                    <div class="card-content white-text">
+                        <span class="card-title">Lieferanten</span>
+                        <p>I am a very simple card. I am good at containing small bits of information.
+                            I am convenient because I require little markup to use effectively.</p>
+                    </div>
+                    <div class="card-action">
+                        <a href="lieferanten-view.php">Verwalten</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col s12 m6">
+                <div class="card blue-grey lighten-1">
+                    <div class="card-content white-text">
+                        <span class="card-title">Kategorien</span>
+                        <p>I am a very simple card. I am good at containing small bits of information.
+                            I am convenient because I require little markup to use effectively.</p>
+                    </div>
+                    <div class="card-action">
+                        <a href="kategorien-view.php">Verwalten</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12 m6">
+                <div class="card blue-grey lighten-1">
+                    <div class="card-content white-text">
+                        <span class="card-title">Lagerorte</span>
+                        <p>I am a very simple card. I am good at containing small bits of information.
+                            I am convenient because I require little markup to use effectively.</p>
+                    </div>
+                    <div class="card-action">
+                        <a href="lagerort-view.php">Verwalten</a>
+                    </div>
+                </div>
+            </div>
 
         </div>
     </div>
