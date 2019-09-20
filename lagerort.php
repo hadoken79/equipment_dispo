@@ -10,8 +10,16 @@ $msgClass = '';
 
 
 if (isset($_GET['success'])) {
-    $msg = 'Eintrag wurde erfolgreich erstellt';
-    $msgClass = 'card-panel teal accent-2';
+
+    switch ($_GET['success']) {
+        case 1:
+            $msg = 'Eintrag wurde erfolgreich erstellt';
+            $msgClass = 'card-panel teal accent-2';
+            break;
+        case 2:
+            $msg = 'Eintrag wurde erfolgreich gelöscht';
+            $msgClass = 'card-panel teal accent-2';
+    }
 }
 
 if (isset($_POST['action'])) {
@@ -46,6 +54,13 @@ if (isset($_GET['id'])) {
     $lagerort_id = filter_var($_GET['id'], FILTER_SANITIZE_SPECIAL_CHARS);
     $lagerort_data = getlagerort($lagerort_id);
     $name = $lagerort_data->name;
+}
+
+if (isset($_POST['delete'])) {
+    $lagerort_id = isset($_POST['lagerort_id']) ? filter_var($_POST['lagerort_id'], FILTER_SANITIZE_SPECIAL_CHARS) : null;
+    if (deleteLagerort($lagerort_id)) {
+        Header('Location: set.php?success=2');
+    }
 }
 
 function getlagerort($lagerort_id)
@@ -90,6 +105,23 @@ function updatelagerort($name, $lagerort_id)
     }
 }
 
+function deleteLagerort($lagerort_id)
+{
+    $pdo = PdoConnector::getConn();
+    $updateQuery = "UPDATE lagerort SET
+            geloescht = True
+            WHERE lagerort_id = :lagerort_id";
+
+
+    $stmt = $pdo->prepare($updateQuery);
+
+    if ($stmt->execute(['lagerort_id' => $lagerort_id])) {
+
+        $pdo = null;
+        return true;
+    }
+}
+
 ?>
 
 <main>
@@ -111,6 +143,22 @@ function updatelagerort($name, $lagerort_id)
                 <button class="btn waves-effect waves-light" type="submit" name="action"><?php echo isset($_GET['id']) ? 'Update' : 'Speichern'; ?>
                     <i class="material-icons right">send</i>
                 </button>
+                <?php echo isset($_GET['id']) ? "<button data-target='modal1' id='lp-del' class='btn waves-effect waves-light red darken-3 right modal-trigger'>Löschen
+                    <i class='material-icons right'>delete</i>
+                </button>" : ""; ?>
+            </div>
+
+             <!-- Modal Structure -->
+             <div id="modal1" class="modal">
+                <div class="modal-content">
+                    <h4>Löschen</h4>
+                    <p>Willst Du den Lagerort permanent löschen?</p>
+                </div>
+                <div class="modal-footer">
+                    <button id='lp-del' class='btn waves-effect waves-light red darken-3 right' type='submit' name='delete'>Löschen
+                        <i class='material-icons right'>delete</i>
+                    </button>
+                </div>
             </div>
     </div>
     </form>
@@ -121,10 +169,10 @@ function updatelagerort($name, $lagerort_id)
 <script>
     document.addEventListener('DOMContentLoaded', function() {
 
-        const options = {};
-        const elems = document.querySelectorAll('select');
-        const instances = M.FormSelect.init(elems, options);
-        //console.log(instances[0].getSelectedValues());
+    
+        const optionsMod = {};
+        const elems2 = document.querySelectorAll('.modal');
+        const modal = M.Modal.init(elems2, optionsMod);
     });
 </script>
 

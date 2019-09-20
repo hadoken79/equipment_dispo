@@ -10,8 +10,16 @@ $msgClass = '';
 
 
 if (isset($_GET['success'])) {
-    $msg = 'Eintrag wurde erfolgreich erstellt';
-    $msgClass = 'card-panel teal accent-2';
+
+    switch ($_GET['success']) {
+        case 1:
+            $msg = 'Eintrag wurde erfolgreich erstellt';
+            $msgClass = 'card-panel teal accent-2';
+            break;
+        case 2:
+            $msg = 'Eintrag wurde erfolgreich gelöscht';
+            $msgClass = 'card-panel teal accent-2';
+    }
 }
 
 if (isset($_POST['action'])) {
@@ -56,8 +64,7 @@ if (isset($_POST['action'])) {
 }
 
 if (isset($_GET['id'])) {
-
-    //Call von Dashboard -> Form befüllen.
+//Call von Dashboard -> Form befüllen.
     $lieferant_id = filter_var($_GET['id'], FILTER_SANITIZE_SPECIAL_CHARS);
 
     $lieferant_data = getLieferant($lieferant_id);
@@ -69,6 +76,13 @@ if (isset($_GET['id'])) {
     $kontakt = $lieferant_data->kontaktname;
     $tel = $lieferant_data->telefonnummer;
     $web = $lieferant_data->webseite;
+}
+
+if (isset($_POST['delete'])) {
+    $lieferant_id = isset($_POST['lieferant_id']) ? filter_var($_POST['lieferant_id'], FILTER_SANITIZE_SPECIAL_CHARS) : null;
+    if (deleteLieferant($lieferant_id)) {
+        Header('Location: set.php?success=2');
+    }
 }
 
 function getLieferant($lieferant_id)
@@ -135,6 +149,23 @@ function updateLieferant($lieferant_id, $firma, $strasse, $plz, $ort, $kontakt, 
     }
 }
 
+function deleteLieferant($lieferant_id)
+{
+    $pdo = PdoConnector::getConn();
+    $updateQuery = "UPDATE lieferant SET
+            geloescht = True
+            WHERE lieferant_id = :lieferant_id";
+
+
+    $stmt = $pdo->prepare($updateQuery);
+
+    if ($stmt->execute(['lieferant_id' => $lieferant_id])) {
+
+        $pdo = null;
+        return true;
+    }
+}
+
 ?>
 
 <main>
@@ -150,41 +181,57 @@ function updateLieferant($lieferant_id, $firma, $strasse, $plz, $ort, $kontakt, 
                     <input type="hidden" name="lieferant_id" value="<?php echo (isset($_GET['id']) && !empty($lieferant_id)) ? $lieferant_id : 'NULL'; ?>">
                     <input type="hidden" name="update" value="<?php echo isset($_GET['id']) ? true : false; ?>">
                     <input id="firma" name="firma" type="text" value="<?php echo ((isset($_POST['firma']) || isset($_GET['id'])) && !empty($firma)) ? $firma : ''; ?>" maxlength="25" required>
-                    <label for="firma">Firma</label>
+                    <label class="active" for="firma">Firma</label>
                 </div>
                 <div class="input-field col s12 m6 l4">
                     <input id="strasse" name="strasse" type="text" maxlength="60" value="<?php echo ((isset($_POST['strasse']) || isset($_GET['id'])) && !empty($strasse)) ? $strasse : ''; ?>">
-                    <label for="strasse">Strasse und Hausnummer</label>
+                    <label class="active" for="strasse">Strasse und Hausnummer</label>
                 </div>
                 <div class="input-field col s12 m6 l4">
                     <input id="plz" name="plz" type="text" maxlength="10" value="<?php echo ((isset($_POST['plz']) || isset($_GET['id'])) && !empty($plz)) ? $plz : ''; ?>">
-                    <label for="plz">Postleitzahl</label>
+                    <label class="active" for="plz">Postleitzahl</label>
                 </div>
             </div>
             <div class="row">
                 <div class="input-field col s12 m6 l4">
                     <input id="ort" name="ort" type="text" value="<?php echo ((isset($_POST['ort']) || isset($_GET['id'])) && !empty($ort)) ? $ort : ''; ?>" maxlength="40">
-                    <label for="ort">Ortschaft</label>
+                    <label class="active" for="ort">Ortschaft</label>
                 </div>
                 <div class="input-field col s12 m6 l4">
-                    <input id="kontakt" name="kontakt" type="text" maxlength="40" value="<?php echo ((isset($_POST['kontakt']) || isset($_GET['id'])) && !empty($kontakt)) ? $kontakt : ''; ?>">
-                    <label for="kontakt">Ansprechpartner</label>
+                    <input id="kontakt" name="kontakt" type="text" value="<?php echo ((isset($_POST['kontakt']) || isset($_GET['id'])) && !empty($kontakt)) ? $kontakt : ''; ?>" maxlength="40">
+                    <label class="active" for="kontakt">Ansprechpartner</label>
                 </div>
                 <div class="input-field col s12 m6 l4">
-                    <input id="tel" name="tel" type="text" maxlength="15" value="<?php echo ((isset($_POST['tel']) || isset($_GET['id'])) && !empty($tel)) ? $tel : ''; ?>" maxlength="25">
-                    <label for="tel">Telefon</label>
+                    <input id="tel" name="tel" type="text"  value="<?php echo ((isset($_POST['tel']) || isset($_GET['id'])) && !empty($tel)) ? $tel : ''; ?>" maxlength="25">
+                    <label class="active" for="tel">Telefon</label>
                 </div>
             </div>
             <div class="row">
                 <div class="input-field col s12 m6 l4">
-                    <input id="web" name="web" type="text" maxlength="40" value="<?php echo ((isset($_POST['web']) || isset($_GET['id'])) && !Emty($web)) ? $web : ''; ?>" maxlength="25">
-                    <label for="web">Webseite</label>
+                    <input id="web" name="web" type="text" value="<?php echo ((isset($_POST['web']) || isset($_GET['id'])) && !empty($web)) ? $web : ''; ?>" maxlength="50">
+                    <label class="active" for="web">Webseite</label>
                 </div>
             </div>
             <div class="row">
                 <button class="btn waves-effect waves-light" type="submit" name="action"><?php echo isset($_GET['id']) ? "Update" : "Speichern" ?>
                     <i class="material-icons right">send</i>
                 </button>
+                <?php echo isset($_GET['id']) ? "<button data-target='modal1' id='lp-del' class='btn waves-effect waves-light red darken-3 right modal-trigger'>Löschen
+                    <i class='material-icons right'>delete</i>
+                </button>" : ""; ?>
+            </div>
+
+             <!-- Modal Structure -->
+             <div id="modal1" class="modal">
+                <div class="modal-content">
+                    <h4>Löschen</h4>
+                    <p>Willst Du den Lieferant permanent löschen?</p>
+                </div>
+                <div class="modal-footer">
+                    <button id='lp-del' class='btn waves-effect waves-light red darken-3 right' type='submit' name='delete'>Löschen
+                        <i class='material-icons right'>delete</i>
+                    </button>
+                </div>
             </div>
     </div>
     </form>
@@ -195,10 +242,10 @@ function updateLieferant($lieferant_id, $firma, $strasse, $plz, $ort, $kontakt, 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
 
-        const options = {};
-        const elems = document.querySelectorAll('select');
-        const instances = M.FormSelect.init(elems, options);
-        //console.log(instances[0].getSelectedValues());
+    
+        const optionsMod = {};
+        const elems2 = document.querySelectorAll('.modal');
+        const modal = M.Modal.init(elems2, optionsMod);
     });
 </script>
 

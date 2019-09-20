@@ -7,7 +7,6 @@ if (!isset($_SESSION['grp']) || @$_SESSION['grp'] != 'adm') {
 }
 
 
-//TODO AUTO-Switch für ASC und DESC einfügen
 
 $order = 'name';
 $dir = 'ASC';

@@ -2,6 +2,8 @@
 /*created by lp - 31.08.2019*/
 $headTitle = "Dashboard";
 require_once('./base/header.php');
+require_once('booking.php');
+
 if (!isset($_SESSION['grp']) || @$_SESSION['grp'] != 'adm') {
     Header('Location: login.php');
 }
@@ -13,129 +15,8 @@ $selectKategories = getKategories();
 $selectSets = getSets();
 $selectLagerorte = getLagerorte();
 $selectLieferanten = getLieferanten();
+$bookings = getNextBookings(); //->bookings.php
 
-if (isset($_GET['success'])) {
-    $msg = 'Eintrag wurde erfolgreich erstellt';
-    $msgClass = 'card-panel teal accent-2';
-}
-
-if (isset($_POST['action'])) {
-    // POST val's
-    $name = filter_var($_POST['name'], FILTER_SANITIZE_SPECIAL_CHARS);
-    $beschrieb = isset($_POST['beschrieb']) ? filter_var($_POST['beschrieb'], FILTER_SANITIZE_SPECIAL_CHARS) : "N/A";
-    $serien_nr = isset($_POST['serien_nr']) ? filter_var($_POST['serien_nr'], FILTER_SANITIZE_SPECIAL_CHARS) : null;
-    $barcode = isset($_POST['barcode']) ? filter_var($_POST['barcode'], FILTER_SANITIZE_SPECIAL_CHARS) : null;
-    $kaufjahr = isset($_POST['kaufjahr']) ? filter_var($_POST['kaufjahr'], FILTER_SANITIZE_SPECIAL_CHARS) : null;
-    $kaufpreis = isset($_POST['kaufpreis']) ? filter_var($_POST['kaufpreis'], FILTER_SANITIZE_SPECIAL_CHARS) : null;
-    $kategorie_id = isset($_POST['kategorie_id']) ? filter_var($_POST['kategorie_id'], FILTER_SANITIZE_SPECIAL_CHARS) : null;
-    $set_id = isset($_POST['set_id']) ?  filter_var($_POST['set_id'], FILTER_SANITIZE_SPECIAL_CHARS) : null;
-    $lagerort_id = isset($_POST['lagerort_id']) ? filter_var($_POST['lagerort_id'], FILTER_SANITIZE_SPECIAL_CHARS) : null;
-    $lieferant_id = isset($_POST['lieferant_id']) ? filter_var($_POST['lieferant_id'], FILTER_SANITIZE_SPECIAL_CHARS) : null;
-    $indispo = ($_POST['indispo'] == 'on') ? true : false;
-    $aktiv = ($_POST['aktiv'] == 'on') ? true : false;
-    $filename = isset($_POST['filename']) ? filter_var($_POST['filename'], FILTER_SANITIZE_SPECIAL_CHARS) : null;
-    $notiz = isset($_POST['notiz']) ? filter_var($_POST['notiz'], FILTER_SANITIZE_SPECIAL_CHARS) : "N/A";
-    $bild_id = '';
-    //wird nachher per Reverenz an inserEquipment übergeben. variable wird nach erstellung für Lieferant_equipment benötigt
-    $equipment_id = '';
-
-    // Obligatorische Felder prüfen.
-    if (!empty($name) && !empty($kategorie_id) && !empty($serien_nr)) {
-
-        //Bevor das Equipment gespeichert werden kann, muss falls ein Equipmentbild gesetzt ist, noch dessen id erzeugt werden.
-        if (isset($filename)) {
-            $bild_id = insertFilename($filename);
-        };
-
-        if (insertEquipment($equipment_id, $name, $beschrieb, $serien_nr, $barcode, $kaufjahr, $kaufpreis, $kategorie_id, $set_id, $lagerort_id, $indispo, $aktiv, $notiz, $bild_id)) {
-
-            Header('Location: equipment.php?success=1');
-
-            //falls ein Lieferant gesetzt wurde, kann jetzt noch der Lieferant_Equipment-Table ergänzt werden
-            if (isset($lieferant_id)) {
-                insertLieferant_Equipment($lieferant, $equipment_id);
-            };
-        } else {
-            $msg = 'Beim Versuch in die Datenbank zu speichern ist ein Fehler aufgetreten. ev. gibt es ein Verbindungsproblem.';
-            $msgClass = 'card-panel red lighten-1';
-        }
-    } else {
-        $msg = 'Name, Kategorie und Seriennummer sind zwingend';
-        $msgClass = 'card-panel red lighten-1';
-    }
-}
-function insertFileName($filename)
-{
-    $pdo = PdoConnector::getConn();
-    $insertQuery = "INSERT INTO equipmentbild(
-            `filename`,
-        )
-        VALUES
-            (?);";
-    $stmt = $pdo->prepare($insertQuery);
-    if ($stmt->execute([$filename])) {
-        $bild_id = $pdo->query("SELECT bild_id FROM equipmentbild WHERE filename = $filename");
-        $pdo = null;
-        return $bild_id;
-    }
-}
-
-function insertLieferant_Equipment($lieferant_id, $equipment_id)
-{
-    $pdo = PdoConnector::getConn();
-    $insertQuery = "INSERT INTO lieferant_equipment(
-            lieferant_id,
-            equipment_id
-        )
-        VALUES
-        (:equipment_id)
-        (:lieferant_id);";
-    $stmt = $pdo->prepare($insertQuery);
-    $stmt->execute(['equipment_id' => $equipment_id, 'lieferant_id' => $lieferant_id]);
-    $pdo = null;
-}
-
-function insertEquipment(&$equipment_id, $name, $beschrieb, $serien_nr, $barcode, $kaufjahr, $kaufpreis, $kategorie_id, $set_id, $lagerort_id, $indispo, $aktiv, $notiz, $bild_id)
-{
-    $pdo = PdoConnector::getConn();
-    $insertQuery = "INSERT INTO equipment(
-            `name`,
-            beschrieb,
-            notiz,
-            serien_nr,
-            barcode,
-            indispo,
-            aktiv,
-            kaufjahr,
-            kaufpreis,
-            set_id,
-            kategorie_id,
-            bild_id,
-            lagerort_id
-        ) 
-        VALUES
-            (:name,
-            :beschrieb,
-            :notiz,
-            :serien_nr,
-            :barcode,
-            :indispo,
-            :aktiv,
-            :kaufjahr,
-            :kaufpreis,
-            :set_id,
-            :kategorie_id,
-            :bild_id,
-            :lagerort_id);";
-
-    $stmt = $pdo->prepare($insertQuery);
-
-    if ($stmt->execute(['name' => $name, 'beschrieb' => $beschrieb, 'notiz' => $notiz, 'serien_nr' => $serien_nr, 'barcode' => $barcode, 'indispo' => $indispo, 'aktiv' => $aktiv, 'kaufjahr' => $kaufjahr, 'kaufpreis' => $kaufpreis, 'set_id' => $set_id, 'kategorie_id' => $kategorie_id, 'bild_id' => $bild_id, 'lagerort_id' => $lagerort_id])) {
-        $equipment_id = $pdo->query("SELECT equipment_id FROM equipment WHERE name == $name AND beschrieb = $beschrieb AND serien_nr == $serien_nr AND geloescht == false");
-        $pdo = null;
-        return true;
-    }
-}
 
 function getKategories()
 {
@@ -168,6 +49,9 @@ function getLieferanten()
     $pdo = null;
     return $selectLieferanten;
 }
+
+
+
 ?>
 
 <main>
@@ -175,16 +59,15 @@ function getLieferanten()
     <div class="container">
         <div class="row">
             <div class="col s12 m12">
-                <div class="card medium blue-grey lighten-1 white-text">
+                <div class="card large blue-grey lighten-1 white-text">
                     <div class="card-content">
-                        <span class="card-title">Buchungen</span>
+                        <span class="card-title">nächste Buchungen</span>
                         <ul class="collection">
-                            <li class="collection-item black-text">
-                                <div>Alvin<a href="#!" class="secondary-content"><i class="material-icons">delete</i></a></div>
+                        <?php foreach ($bookings as $booking) : ?>
+                            <li id="<?php echo $booking['id']; ?>" class="collection-item black-text">
+                                <div><?php echo $booking['buchung']; ?><a href="#!" class="secondary-content cb"><i class="material-icons">delete</i></a></div>
                             </li>
-                            <li class="collection-item black-text">
-                                <div>Alvin<a href="#!" class="secondary-content"><i class="material-icons">delete</i></a></div>
-                            </li>
+                        <?php endforeach; ?>
                         </ul>
                     </div>
                 </div>
@@ -255,13 +138,48 @@ function getLieferanten()
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
 </main>
 
 
+
+<script>
+document.querySelector('.collection').addEventListener('click', cancelBooking);
+
+function cancelBooking(e) {
+
+
+    if (e.target.parentElement.classList.contains('cb')) {
+        let id = e.target.parentElement.parentElement.parentElement.id;
+        console.log(id);
+        
+        
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', 'booking.php', true);
+        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        let htmlparams = `cancelId=${id}`;
+        //let loader = document.querySelector('.progress');
+
+
+
+
+    xhr.onload = function () {
+        if (this.status === 200) {
+            //loader.classList.add('hide');
+            M.toast({ html: this.responseText }, 3000);
+            e.target.parentElement.parentElement.parentElement.classList.add('hide');
+
+        } else {
+            M.toast({ html: 'FEHLER! ' + this.responseText }, 5000);
+        }
+    }
+    xhr.send(htmlparams);
+    //loader.classList.remove('hide');
+    }
+}
+</script>
 
 
 

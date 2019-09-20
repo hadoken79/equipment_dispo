@@ -12,8 +12,16 @@ $msgClass = '';
 $selectKategories = getKategories();
 
 if (isset($_GET['success'])) {
-    $msg = 'Eintrag wurde erfolgreich erstellt';
-    $msgClass = 'card-panel teal accent-2';
+
+    switch ($_GET['success']) {
+        case 1:
+            $msg = 'Eintrag wurde erfolgreich erstellt';
+            $msgClass = 'card-panel teal accent-2';
+            break;
+        case 2:
+            $msg = 'Eintrag wurde erfolgreich gelöscht';
+            $msgClass = 'card-panel teal accent-2';
+    }
 }
 
 if (isset($_POST['action'])) {
@@ -304,7 +312,7 @@ function deleteSet($set_id)
         //console.log(instances[0].getSelectedValues());
         const optionsMod = {};
         const elems2 = document.querySelectorAll('.modal');
-        const modal = M.Modal.init(elems2, options);
+        const modal = M.Modal.init(elems2, optionsMod);
     });
 </script>
 
