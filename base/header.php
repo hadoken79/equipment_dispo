@@ -1,6 +1,5 @@
 <?php
 /*created by lp - 2019-07-27*/
-//require_once('./db/db.php');
 require_once('./db/PdoConnector.php');
 session_start();
 $_SESSION['fail'] = 0;
@@ -48,7 +47,7 @@ if (isset($_GET['logout'])) {
 </head>
 
 <body>
-    <header class="z-depth-3">
+    <header class="z-depth-3 <?php echo ($headTitle === 'invisible') ? 'hide' : ''; ?>">
         <ul id="slide-out" class="sidenav">
             <div class="background">
                 <img src="images/cam.jpg">

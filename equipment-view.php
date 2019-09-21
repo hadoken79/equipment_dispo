@@ -39,11 +39,39 @@ function getAllEquipments($order, $dir)
 
 
 
+
+
 ?>
 
 <main>
 
     <div class="lp-container">
+
+        <div class="row">
+            <form class="col s12">
+                <div class="row">
+                    <div class="input-field col s6">
+                        <i class="material-icons prefix">search</i>
+                        <textarea id="icon_prefix2" class="materialize-textarea lp-search"></textarea>
+                        <label for="icon_prefix2">suchen</label>
+                    </div>
+                    <form action="#">
+                        <p>
+                            <label>
+                                <input id='name' name="filter" type="radio" checked />
+                                <span>Name</span>
+                            </label>
+                        </p>
+                        <p>
+                            <label>
+                                <input id='serien_nr' name="filter" type="radio" />
+                                <span>Seriennummer</span>
+                            </label>
+                        </p>
+                    </form>
+                </div>
+            </form>
+        </div>
         <table class="striped responsive-table">
             <thead>
                 <tr>
@@ -57,7 +85,7 @@ function getAllEquipments($order, $dir)
 
             <tbody>
                 <?php foreach ($equipments as $equipment) : ?>
-                    <tr class="hoverable">
+                    <tr id="<?php echo $equipment->equipment_id; ?>" class="hoverable lp-rows">
                         <td><a class=" waves-effect tooltipped" data-position="top" data-tooltip="Element <wbr> bearbeiten" href="equipment.php?id=<?php echo $equipment->equipment_id; ?>"><i class="material-icons cyan-text text-darken-4">remove_red_eye</i></a></td>
                         <td><?php echo $equipment->name; ?></td>
                         <td><?php echo $equipment->beschrieb; ?></td>
@@ -83,6 +111,52 @@ function getAllEquipments($order, $dir)
         const elems = document.querySelectorAll('.tooltipped');
         const tipps = M.Tooltip.init(elems, options);
     });
+    let searchbar = document.querySelector('.lp-search').addEventListener('keyup', searchequipment);
+
+    function searchequipment(e) {
+        let input = e.target.value;
+        let radio_name = document.querySelector('#name');
+        let radio_serie = document.querySelector('#serien_nr');
+        let searchCol;
+
+        console.log(radio_name.checked);
+
+        //console.log(input);
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', 'booking.php', true);
+        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        radio_name.checked ? serchCol = 'name' : serchCol = 'serien_nr';
+
+        let htmlparams = `search=${input}&searchIn=${serchCol}`;
+
+
+        xhr.onload = function() {
+            if (this.status === 200) {
+
+                let ids = JSON.parse(this.response);
+                //console.log(ids);
+
+                let rows = document.querySelectorAll('.lp-rows');
+
+                rows.forEach(function(row) {
+                    row.classList.remove('hide');
+                    let match = false;
+                    for (i = 0; i < ids.length; i++) {
+                        if (row.id == ids[i]['equipment_id']) {
+                            match = true;
+                            break;
+                        }
+
+                    }
+                    if (match == false) {
+                        row.classList.add('hide');
+                    }
+                })
+            }
+
+        }
+        xhr.send(htmlparams);
+    }
 </script>
 
 <?php

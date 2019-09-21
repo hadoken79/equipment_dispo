@@ -7,6 +7,7 @@ require_once('booking.php');
 if (!isset($_SESSION['grp']) || @$_SESSION['grp'] != 'adm') {
     Header('Location: login.php');
 }
+
 $msg = '';
 $msgClass = '';
 
@@ -15,7 +16,7 @@ $selectKategories = getKategories();
 $selectSets = getSets();
 $selectLagerorte = getLagerorte();
 $selectLieferanten = getLieferanten();
-$bookings = getNextBookings(); //->bookings.php
+$bookings = getNextBookings(10); //->bookings.php
 
 
 function getKategories()
@@ -63,12 +64,15 @@ function getLieferanten()
                     <div class="card-content">
                         <span class="card-title">nächste Buchungen</span>
                         <ul class="collection">
-                        <?php foreach ($bookings as $booking) : ?>
-                            <li id="<?php echo $booking['id']; ?>" class="collection-item black-text">
-                                <div><?php echo $booking['buchung']; ?><a href="#!" class="secondary-content cb"><i class="material-icons">delete</i></a></div>
-                            </li>
-                        <?php endforeach; ?>
+                            <?php foreach ($bookings as $booking) : ?>
+                                <li id="<?php echo $booking['id']; ?>" class="collection-item black-text">
+                                    <div><?php echo $booking['rdate'] . ' | ' . $booking['name'] . '  ----------> ' . $booking['user']; ?><a href="#!" class="secondary-content cb"><i class="material-icons">delete</i></a></div>
+                                </li>
+                            <?php endforeach; ?>
                         </ul>
+                    </div>
+                    <div class="card-action">
+                        <a href="booking-view.php">Mehr</a>
                     </div>
                 </div>
             </div>
@@ -146,39 +150,44 @@ function getLieferanten()
 
 
 <script>
-document.querySelector('.collection').addEventListener('click', cancelBooking);
+    document.querySelector('.collection').addEventListener('click', cancelBooking);
 
-function cancelBooking(e) {
+    function cancelBooking(e) {
 
 
-    if (e.target.parentElement.classList.contains('cb')) {
-        let id = e.target.parentElement.parentElement.parentElement.id;
-        console.log(id);
-        
-        
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', 'booking.php', true);
-        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-        let htmlparams = `cancelId=${id}`;
-        //let loader = document.querySelector('.progress');
+        if (e.target.parentElement.classList.contains('cb')) {
+            let id = e.target.parentElement.parentElement.parentElement.id;
 
 
 
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'booking.php', true);
+            xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+            let htmlparams = `cancelId=${id}`;
+            console.log(id);
 
-    xhr.onload = function () {
-        if (this.status === 200) {
-            //loader.classList.add('hide');
-            M.toast({ html: this.responseText }, 3000);
-            e.target.parentElement.parentElement.parentElement.classList.add('hide');
 
-        } else {
-            M.toast({ html: 'FEHLER! ' + this.responseText }, 5000);
+
+
+
+            xhr.onload = function() {
+                if (this.status === 200) {
+
+                    M.toast({
+                        html: this.responseText
+                    }, 3000);
+                    e.target.parentElement.parentElement.parentElement.classList.add('hide');
+
+                } else {
+                    M.toast({
+                        html: 'FEHLER! ' + this.responseText
+                    }, 5000);
+                }
+            }
+            xhr.send(htmlparams);
+
         }
     }
-    xhr.send(htmlparams);
-    //loader.classList.remove('hide');
-    }
-}
 </script>
 
 

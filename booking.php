@@ -1,5 +1,10 @@
 <?php
+
 require_once('./db/PdoConnector.php');
+
+if (!isset($_SESSION)) {
+    session_start();
+}
 
 
 if (isset($_GET['checkdate'])) {
@@ -10,16 +15,20 @@ if (isset($_GET['checkdate'])) {
     $date = filter_var($_POST['date'], FILTER_SANITIZE_SPECIAL_CHARS);
     $user = $_SESSION['user'];
     bookSet($id, $date, $user);
-
 } else if (isset($_POST['eqp'])) {
     $id = filter_var($_POST['eqp'], FILTER_SANITIZE_SPECIAL_CHARS);
     $date = filter_var($_POST['date'], FILTER_SANITIZE_SPECIAL_CHARS);
     $user = $_SESSION['user'];
     bookEquipment($id, $date, $user, false);
-
-} else if(isset($_POST['cancelId'])){
+} else if (isset($_POST['cancelId'])) {
     $id = filter_var($_POST['cancelId'], FILTER_SANITIZE_SPECIAL_CHARS);
     cancelBooking($id);
+} else if (isset($_POST['search'])) {
+    $searchstring = $_POST['search'];
+    $searchIn = isset($_POST['searchIn']) ? filter_var($_POST['searchIn'], FILTER_SANITIZE_SPECIAL_CHARS) : 'name';
+
+
+    searchEquipment($searchstring, $searchIn);
 }
 
 function checkforBooking($date)
@@ -41,56 +50,79 @@ function checkforBooking($date)
     echo Json_encode($bookings);
 }
 
-function getNextBookings()
+function getNextBookings($limit, $order = 'reserviert_fuer', $dir = 'ASC')
 {
     $today = date('Y-m-d');
-    
+
     $bookQuery = "SELECT 
     buchung.buchung_id, 
     buchung.equipment_id, 
     buchung.user, 
     buchung.reserviert_fuer,
+    buchung.gebucht_am,
     equipment.set_id AS setID,
     equipment.beschrieb AS EQname,
     set_.name AS setname
     FROM buchung LEFT JOIN equipment
     ON buchung.equipment_id = equipment.equipment_id LEFT JOIN set_
-    ON equipment.set_id = set_.set_id WHERE storniert = false AND buchung.reserviert_fuer >= ? ORDER BY reserviert_fuer ASC LIMIT 10;";
+    ON equipment.set_id = set_.set_id WHERE storniert = false AND buchung.reserviert_fuer >= ? ORDER BY $order $dir LIMIT $limit;";
     $pdo = PdoConnector::getConn();
     $stmt = $pdo->prepare($bookQuery);
-    if($stmt->execute([$today])){
+    if ($stmt->execute([$today])) {
         $bookings = $stmt->fetchAll();
         $pdo = null;
 
-        //Bei Sets werden buchungen für alle beinhalteten Equipments ausgelöst, desshalb werden hier doppler gefiltert.
+        //Bei Sets werden Buchungen für alle beinhalteten Equipments ausgelöst, desshalb werden hier doppler gefiltert.
         //Zur besseren Übersicht reicht es, wenn im Falle eines Sets auch nur das Set als Ganzes in der Buchng erscheint.
         $datecache = '';
         $titelcache = '';
 
         $cleanbookings = array();
-        
-        foreach($bookings as $booking)
-        {
+
+        foreach ($bookings as $booking) {
             $readDate = date('d-m-Y', strtotime($booking->reserviert_fuer));
-            $titel = !isset($booking->setID) ? $booking->EQname: $booking->setname;
+            $titel = !isset($booking->setID) ? $booking->EQname : $booking->setname;
             $user = $booking->user;
+            $bDate = $booking->gebucht_am;
 
 
-            if($datecache === $readDate && $titelcache === $titel)
-            {
-               continue;
-            }else{
-                $elem = array('id' => $booking->buchung_id, 'buchung' => $readDate . ' | ' . $titel . ' reserviert für ' . $user);
-                 array_push($cleanbookings, $elem);
+            if ($datecache === $readDate && $titelcache === $titel) {
+                continue;
+            } else {
+                //$elem = array('id' => $booking->buchung_id, 'buchung' => $readDate . ' | ' . $titel . ' reserviert für ' . $user);
+                $elem = array('id' => $booking->buchung_id, 'rdate' => $readDate, 'bdate' => $bDate, 'name' => $titel, 'user' => $user);
+                array_push($cleanbookings, $elem);
 
-                 $datecache = $readDate;
-                 $titelcache = $titel;
+                $datecache = $readDate;
+                $titelcache = $titel;
             }
         }
         return $cleanbookings;
     }
-    
+}
 
+function getAllBookings($limit, $order = 'reserviert_fuer', $dir = 'ASC')
+{ //Ansicht für Technik. Sets werden ignoriert, die Equipmentbuchungen werden im Detail angezeigt.
+    $today = date('Y-m-d');
+
+    $bookQuery = "SELECT 
+    buchung.buchung_id, 
+    buchung.equipment_id, 
+    buchung.user, 
+    buchung.reserviert_fuer,
+    buchung.gebucht_am,
+    equipment.name,
+    equipment.beschrieb
+    FROM buchung LEFT JOIN equipment
+    ON buchung.equipment_id = equipment.equipment_id
+    WHERE storniert = false AND buchung.reserviert_fuer >= ? ORDER BY $order $dir LIMIT $limit;";
+    $pdo = PdoConnector::getConn();
+    $stmt = $pdo->prepare($bookQuery);
+    if ($stmt->execute([$today])) {
+        $bookings = $stmt->fetchAll();
+        $pdo = null;
+        return $bookings;
+    }
 }
 
 function bookEquipment($id, $date, $user, $callFromSet)
@@ -105,8 +137,8 @@ function bookEquipment($id, $date, $user, $callFromSet)
         if (!$callFromSet) {
             //test um langsame Verbindung und loader zu testen.
             //sleep(5);
-            $sqldate = strtotime( $date );
-            $readabledate = date( 'd-M-Y', $sqldate );
+            $sqldate = strtotime($date);
+            $readabledate = date('d-M-Y', $sqldate);
             echo 'Equipment wurde für ' . $user .  ' <wbr>am '  . $readabledate . ' gebucht. <br> Technik wird informiert';
         };
     } else {
@@ -117,14 +149,14 @@ function bookEquipment($id, $date, $user, $callFromSet)
 
 
 function bookSet($id, $date, $user)
-{   
+{
     $pdo = PdoConnector::getConn();
-    $eq_inset_query = "SELECT equipment_id FROM equipment WHERE set_id =?;";
-    $stmt = $pdo->prepare($eq_inset_query);
+    $eq_insert_query = "SELECT equipment_id FROM equipment WHERE set_id =?;";
+    $stmt = $pdo->prepare($eq_insert_query);
     $stmt->execute([$id]);
     $eqs_ids = $stmt->fetchAll();
-    
-    if(empty($eqs_ids)){
+
+    if (empty($eqs_ids)) {
         echo 'Diesem Set scheint kein Equipment zugewiesen zu sein. <br> Bitte Technik kontaktieren.';
         exit();
     }
@@ -141,31 +173,28 @@ function cancelBooking($id)
 {
     $pdo = PdoConnector::getConn();
     $checkIfSetQuery = "SELECT 
-    buchung.buchung_id, 
-    buchung.equipment_id, 
-    buchung.user, 
-    buchung.reserviert_fuer,
-    equipment.set_id AS setID,
-    set_.name AS setname
-    FROM buchung LEFT JOIN equipment
-    ON buchung.equipment_id = equipment.equipment_id LEFT JOIN set_
-    ON equipment.set_id = set_.set_id WHERE storniert = false AND buchung_id = ?;";
+        buchung.buchung_id, 
+        buchung.equipment_id, 
+        buchung.user, 
+        buchung.reserviert_fuer,
+        equipment.set_id AS setID,
+        set_.name AS setname
+        FROM buchung LEFT JOIN equipment
+        ON buchung.equipment_id = equipment.equipment_id LEFT JOIN set_
+        ON equipment.set_id = set_.set_id WHERE storniert = false AND buchung_id = ?;";
     $stmt = $pdo->prepare($checkIfSetQuery);
-    if($stmt->execute([$id])){
+    if ($stmt->execute([$id])) {
         $booking = $stmt->fetch();
         $cancelIds = array();
-    }else{
+    } else {
         return "keine Antwort von der Datenbank";
     }
     $pdo = null;
-    
-    
-    if(is_null($booking->setID))
-    {
+
+
+    if (is_null($booking->setID)) {
         array_push($cancelIds, $booking->buchung_id);
-    }
-    else
-    {
+    } else {
         $pdo = PdoConnector::getConn();
         $getSetBookings = "SELECT 
         buchung_id, 
@@ -180,24 +209,35 @@ function cancelBooking($id)
         $stmt = $pdo->prepare($getSetBookings);
         $stmt->execute(['user' => $booking->user, 'datum' => $booking->reserviert_fuer]);
         $result = $stmt->fetchAll();
-        $pdo= null;
-        foreach($result as $elem){
+        $pdo = null;
+        foreach ($result as $elem) {
             array_push($cancelIds, $elem->buchung_id);
         }
     }
 
-    foreach($cancelIds as $id){
-        $stat;
+    foreach ($cancelIds as $id) {
+        $stat = false;
         $pdo = PdoConnector::getConn();
         $stmt = $pdo->prepare("UPDATE buchung SET storniert = true WHERE buchung_id = ?");
-        if($stmt->execute([$id])){
+        if ($stmt->execute([$id])) {
             $stat = true;
         }
         $pdo = null;
     }
-   
-    if($stat){
+
+    if ($stat) {
         echo "Buchung storniert";
     };
+}
 
+function searchEquipment($searchstring, $searchIn)
+{
+    $pdo = PdoConnector::getConn();
+    $searchQuery = "SELECT equipment_id FROM equipment WHERE $searchIn LIKE :searchstring AND geloescht = false;";
+    $searchstring = "%$searchstring%";
+    $stmt = $pdo->prepare($searchQuery);
+    $stmt->execute(array('searchstring' => $searchstring));
+    $pdo = null;
+    $result = $stmt->fetchAll();
+    echo Json_encode($result);
 }
