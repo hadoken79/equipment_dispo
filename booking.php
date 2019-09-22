@@ -2,6 +2,7 @@
 
 require_once('./db/PdoConnector.php');
 
+
 if (!isset($_SESSION)) {
     session_start();
 }
@@ -30,7 +31,7 @@ if (isset($_GET['checkdate'])) {
 
     searchEquipment($searchstring, $searchIn);
 }
-
+//wird vom Client angefordert um Buchungen für gewähltes DAtum zu erfahren
 function checkforBooking($date)
 {
     $pdo = PdoConnector::getConn();
@@ -139,7 +140,8 @@ function bookEquipment($id, $date, $user, $callFromSet)
             //sleep(5);
             $sqldate = strtotime($date);
             $readabledate = date('d-M-Y', $sqldate);
-            echo 'Equipment wurde für ' . $user .  ' <wbr>am '  . $readabledate . ' gebucht. <br> Technik wird informiert';
+            echo 'Equipment wurde für ' . $user .  ' <br>am '  . $readabledate . ' gebucht. <br> Technik wird informiert';
+            //mail oder slack an technik
         };
     } else {
         echo "Buchung hat nicht geklappt, <br>bitte mit der Technik in Verbindung setzten";
@@ -167,6 +169,7 @@ function bookSet($id, $date, $user)
     }
     $pdo = null;
     echo "Set wurde für " . $user . " am " . $date . " gebucht.<br> Technik wird informiert";
+    //mail oder slack an technik
 }
 
 function cancelBooking($id)

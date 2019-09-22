@@ -124,61 +124,61 @@ function deleteKategorie($kategorie_id)
 
 ?>
 
-<main>
-    <div class="container">
-        <?php if ($msg != '') : ?>
-            <div class="<?php echo $msgClass; ?>"><?php echo $msg; ?></div>
-        <?php endif; ?>
+    <main>
+        <div class="container">
+            <?php if ($msg != '') : ?>
+                <div class="<?php echo $msgClass; ?>"><?php echo $msg; ?></div>
+            <?php endif; ?>
 
-        <form id="lp-form" method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>">
-            <div class="row">
-                <div class="input-field col s12 m6 l4">
-                    <input type="hidden" name="update" value="<?php echo isset($_GET['id']) ? true : false; ?>">
-                    <input type="hidden" name="kategorie_id" value="<?php echo isset($_GET['id']) ? $kategorie_id : 'NULL'; ?>">
-                    <input id="name" name="name" type="text" value="<?php echo isset($_GET['id']) ? $name : '' ?>" maxlength="25" required>
-                    <label for="name">Kategorie-Name</label>
+            <form id="lp-form" method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>">
+                <div class="row">
+                    <div class="input-field col s12 m6 l4">
+                        <input type="hidden" name="update" value="<?php echo isset($_GET['id']) ? true : false; ?>">
+                        <input type="hidden" name="kategorie_id" value="<?php echo isset($_GET['id']) ? $kategorie_id : 'NULL'; ?>">
+                        <input id="name" name="name" type="text" value="<?php echo isset($_GET['id']) ? $name : '' ?>" maxlength="25" required>
+                        <label for="name">Kategorie-Name</label>
+                    </div>
                 </div>
-            </div>
-            <div class="row">
-                <button class="btn waves-effect waves-light" type="submit" name="action"><?php echo isset($_GET['id']) ? 'Update' : 'Speichern'; ?>
-                    <i class="material-icons right">send</i>
-                </button>
-                <?php echo isset($_GET['id']) ? "<button data-target='modal1' id='lp-del' class='btn waves-effect waves-light red darken-3 right modal-trigger'>Löschen
+                <div class="row">
+                    <button class="btn waves-effect waves-light" type="submit" name="action"><?php echo isset($_GET['id']) ? 'Update' : 'Speichern'; ?>
+                        <i class="material-icons right">send</i>
+                    </button>
+                    <?php echo isset($_GET['id']) ? "<button data-target='modal1' id='lp-del' class='btn waves-effect waves-light red darken-3 right modal-trigger'>Löschen
                     <i class='material-icons right'>delete</i>
                 </button>" : ""; ?>
-            </div>
-
-              <!-- Modal Structure -->
-              <div id="modal1" class="modal">
-                <div class="modal-content">
-                    <h4>Löschen</h4>
-                    <p>Willst Du die Kategorie permanent löschen?</p>
                 </div>
-                <div class="modal-footer">
-                    <button id='lp-del' class='btn waves-effect waves-light red darken-3 right' type='submit' name='delete'>Löschen
-                        <i class='material-icons right'>delete</i>
-                    </button>
+
+                <!-- Modal Structure -->
+                <div id="modal1" class="modal">
+                    <div class="modal-content">
+                        <h4>Löschen</h4>
+                        <p>Willst Du die Kategorie permanent löschen?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button id='lp-del' class='btn waves-effect waves-light red darken-3 right' type='submit' name='delete'>Löschen
+                            <i class='material-icons right'>delete</i>
+                        </button>
+                    </div>
                 </div>
-            </div>
-    </div>
-    </form>
-    </div>
+        </div>
+        </form>
+        </div>
 
-</main>
+    </main>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
 
-    
-        const optionsMod = {};
-        const elems2 = document.querySelectorAll('.modal');
-        const modal = M.Modal.init(elems2, optionsMod);
-    });
-</script>
 
+            const optionsMod = {};
+            const elems2 = document.querySelectorAll('.modal');
+            const modal = M.Modal.init(elems2, optionsMod);
+        });
+    </script>
 
 
 
-<?php
-require_once('./base/footer.php');
-?>
+
+    <?php
+    require_once('./base/footer.php');
+    ?>

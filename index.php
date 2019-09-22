@@ -58,76 +58,75 @@ $equipments = $stmt->fetchAll();
 $pdo = null;
 
 ?>
+
 <main>
-    <noscript>
-        <h4>Javascript scheint in Deinem Browser deaktiviert zu sein. <br>Diese Seite kann nicht ohne Javascript benutzt werden...</h4>
-</main>
-</noscript>
-<div class="container">
-    <div class="progress hide">
-        <div class="indeterminate"></div>
-    </div>
-    <div class="row">
-        <aside id="lp-kal" class="input-field col s12 m3">
-            <!-- Date picker -->
-            <input type="text" placeholder="Wähle ein Datum" class="datepicker">
-            <!-- Kategorie filter -->
-            <div class="input-field">
-                <select id="lp-katfilter" class="browser-default" onchange="filterChanged(this.value)">
-                    <option value="0">alle</option>
-                    <?php foreach ($kategorien as $kategorie) : ?>
-                        <option value="<?php echo $kategorie->kategorie_id; ?>"><?php echo $kategorie->name; ?></option>
-                    <?php endforeach ?>
-                </select>
-                <!--<label>filtere nach Kategorien</label>-->
+
+
+    <div class="container">
+        <div class="progress hide">
+            <div class="indeterminate"></div>
+        </div>
+        <div class="row">
+            <aside id="lp-kal" class="input-field col s12 m3">
+                <!-- Date picker -->
+                <input type="text" placeholder="Wähle ein Datum" class="datepicker">
+                <!-- Kategorie filter -->
+                <div class="input-field">
+                    <select id="lp-katfilter" class="browser-default" onchange="filterChanged(this.value)">
+                        <option value="0">alle</option>
+                        <?php foreach ($kategorien as $kategorie) : ?>
+                            <option value="<?php echo $kategorie->kategorie_id; ?>"><?php echo $kategorie->name; ?></option>
+                        <?php endforeach ?>
+                    </select>
+                    <!--<label>filtere nach Kategorien</label>-->
+                </div>
+            </aside>
+            <!-- Die Collection Elemente -->
+            <div id="lp-card" class="col s12 m9">
+                <ul class="collection">
+                    <?php
+                    foreach ($sets as $set) {
+                        $titel = $set->name;
+                        $beschrieb = $set->beschrieb;
+                        $pfad = 'c:/bilder/';
+                        $bild = $set->filename ? $pfad . $set->filename : 'images/yuna.jpg';
+                        $linkvis = '';
+                        if (!$set->aktiv) {
+                            $titel = '<b>Nicht verfügbar</b>';
+                            $linkvis = 'hide';
+                        };
+                        echo "<li id='set{$set->set_id}' class='collection-item avatar setlist {$set->kategorie_id}'>";
+                        echo "<img src={$bild} alt='' class='circle'>";
+                        echo "<span class='title'>{$titel}</span>";
+                        echo "<p class='truncate'>{$beschrieb}</p>";
+                        echo "<p class='status'></p>";
+                        echo "<a href='#!' class='secondary-content bookset {$linkvis}'><i class='material-icons'>playlist_add</i></a>";
+                        echo "</li>";
+                    }
+                    foreach ($equipments as $equipment) {
+                        $titel = $equipment->name;
+                        $beschrieb = $equipment->beschrieb;
+                        $pfad = 'c:/bilder/';
+                        $bild = $equipment->filename ? $pfad . $equipment->filename : 'images/yuna.jpg';
+                        $linkvis = '';
+                        if (!$equipment->aktiv) {
+                            $titel = '<b>Nicht verfügbar</b>';
+                        };
+                        echo "<li id='eqp{$equipment->equipment_id}' class='collection-item avatar eqlist {$equipment->kategorie_id}'>";
+                        echo "<img src={$bild} alt='' class='circle'>";
+                        echo "<span class='title'>{$titel}</span>";
+                        echo "<p class='truncate'>{$beschrieb}</p>";
+                        echo "<p class='status'></p>";
+                        if ($equipment->aktiv) {
+                            echo "<a href='#!' class='secondary-content bookeqp'><i class='material-icons'>playlist_add</i></a>";
+                        };
+                        echo "</li>";
+                    }
+                    ?>
+                </ul>
             </div>
-        </aside>
-        <!-- Die Collection Elemente -->
-        <div id="lp-card" class="col s12 m9">
-            <ul class="collection">
-                <?php
-                foreach ($sets as $set) {
-                    $titel = $set->name;
-                    $beschrieb = $set->beschrieb;
-                    $pfad = 'c:/bilder/';
-                    $bild = $set->filename ? $pfad . $set->filename : 'images/yuna.jpg';
-                    $linkvis = '';
-                    if (!$set->aktiv) {
-                        $titel = '<b>Nicht verfügbar</b>';
-                        $linkvis = 'hide';
-                    };
-                    echo "<li id='set{$set->set_id}' class='collection-item avatar setlist {$set->kategorie_id}'>";
-                    echo "<img src={$bild} alt='' class='circle'>";
-                    echo "<span class='title'>{$titel}</span>";
-                    echo "<p class='truncate'>{$beschrieb}</p>";
-                    echo "<p class='status'></p>";
-                    echo "<a href='#!' class='secondary-content bookset {$linkvis}'><i class='material-icons'>playlist_add</i></a>";
-                    echo "</li>";
-                }
-                foreach ($equipments as $equipment) {
-                    $titel = $equipment->name;
-                    $beschrieb = $equipment->beschrieb;
-                    $pfad = 'c:/bilder/';
-                    $bild = $equipment->filename ? $pfad . $equipment->filename : 'images/yuna.jpg';
-                    $linkvis = '';
-                    if (!$equipment->aktiv) {
-                        $titel = '<b>Nicht verfügbar</b>';
-                    };
-                    echo "<li id='eqp{$equipment->equipment_id}' class='collection-item avatar eqlist {$equipment->kategorie_id}'>";
-                    echo "<img src={$bild} alt='' class='circle'>";
-                    echo "<span class='title'>{$titel}</span>";
-                    echo "<p class='truncate'>{$beschrieb}</p>";
-                    echo "<p class='status'></p>";
-                    if ($equipment->aktiv) {
-                        echo "<a href='#!' class='secondary-content bookeqp'><i class='material-icons'>playlist_add</i></a>";
-                    };
-                    echo "</li>";
-                }
-                ?>
-            </ul>
         </div>
     </div>
-</div>
 </main>
 <script src="./lib/js/app.js"></script>
 <?php

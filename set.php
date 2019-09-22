@@ -213,112 +213,113 @@ function deleteSet($set_id)
 
 ?>
 
-<main>
-    <div class="container">
-        <?php if ($msg != '') : ?>
-            <div class="<?php echo $msgClass; ?>"><?php echo $msg; ?></div>
-        <?php endif; ?>
+    <main>
+        <div class="container">
+            <?php if ($msg != '') : ?>
+                <div class="<?php echo $msgClass; ?>"><?php echo $msg; ?></div>
+            <?php endif; ?>
 
-        <form id="lp-form" method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>">
-            <div class="row">
-                <div class="input-field col s12 m6 l4">
-                    <!--Bei Update gleiches Formaular, aber andere abfrage 'UPDATE'-->
-                    <input type="hidden" name="set_id" value="<?php echo (isset($_GET['id']) && !empty($_GET['id'])) ? $_GET['id'] : "NULL" ?>">
-                    <input type="hidden" name="update" value="<?php echo (isset($_GET['id']) && !empty($_GET['id'])) ? true : false; ?>">
-                    <input id="name" name="name" type="text" value="<?php echo (isset($_POST['name']) || isset($_GET['id']) && !empty($name)) ? $name : ''; ?>" maxlength="25" required>
-                    <label for="name">Set Name [Rufname]</label>
-                </div>
-                <div class="input-field col s12 m6 l4">
-                    <input id="beschrieb" name="beschrieb" type="text" maxlength="60" value="<?php echo ((isset($_POST['beschrieb']) || isset($_GET['id'])) && !empty($beschrieb)) ? $beschrieb : ''; ?>">
-                    <label for="beschrieb">Beschrieb [zB C-100 mit Stativ]</label>
-                </div>
-                <div class="input-field col s12 m6 l4">
-                    <select name="kategorie_id">
-                        <option value="" disabled <?php echo ((isset($_GET['id']) || isset($_POST['kategorie_id'])) && !is_null($kategorie_id)) ? '' : "selected"; ?>>wähle eine Option</option>
-                        <?php foreach ($selectKategories as $kat) : ?>
-                            <option value="<?php echo $kat->kategorie_id; ?>" <?php echo ((isset($_GET['id']) || isset($_POST['kategorie_id'])) && $kat->kategorie_id === $kategorie_id) ? 'selected' : ''; ?>><?php echo $kat->name; ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                    <label>Set Kategorie</label>
-                </div>
-            </div>
-            <div class="row">
-                <div class="file-field input-field col s12 m4">
-                    <div class="btn">
-                        <span>Bild</span>
-                        <input type="file" name="filename">
+            <form id="lp-form" method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>">
+                <div class="row">
+                    <div class="input-field col s12 m6 l4">
+                        <!--Bei Update gleiches Formaular, aber andere abfrage 'UPDATE'-->
+                        <input type="hidden" name="set_id" value="<?php echo (isset($_GET['id']) && !empty($_GET['id'])) ? $_GET['id'] : "NULL" ?>">
+                        <input type="hidden" name="update" value="<?php echo (isset($_GET['id']) && !empty($_GET['id'])) ? true : false; ?>">
+                        <input id="name" name="name" type="text" value="<?php echo (isset($_POST['name']) || isset($_GET['id']) && !empty($name)) ? $name : ''; ?>" maxlength="25" required>
+                        <label for="name">Set Name [Rufname]</label>
                     </div>
-                    <div class="file-path-wrapper">
-                        <input class="file-path validate" type="text" value="<?php echo ((isset($_POST['filename']) || isset($_GET['id'])) && !empty($filename)) ? $filename : ''; ?>" placeholder="optionales Equipmentbild">
+                    <div class="input-field col s12 m6 l4">
+                        <input id="beschrieb" name="beschrieb" type="text" maxlength="60" value="<?php echo ((isset($_POST['beschrieb']) || isset($_GET['id'])) && !empty($beschrieb)) ? $beschrieb : ''; ?>">
+                        <label for="beschrieb">Beschrieb [zB C-100 mit Stativ]</label>
+                    </div>
+                    <div class="input-field col s12 m6 l4">
+                        <select name="kategorie_id">
+                            <option value="" disabled <?php echo ((isset($_GET['id']) || isset($_POST['kategorie_id'])) && !is_null($kategorie_id)) ? '' : "selected"; ?>>wähle eine Option</option>
+                            <?php foreach ($selectKategories as $kat) : ?>
+                                <option value="<?php echo $kat->kategorie_id; ?>" <?php echo ((isset($_GET['id']) || isset($_POST['kategorie_id'])) && $kat->kategorie_id === $kategorie_id) ? 'selected' : ''; ?>><?php echo $kat->name; ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <label>Set Kategorie</label>
                     </div>
                 </div>
-                <div class="input-field col s12 m8">
-                    <textarea id="notiz" name="notiz" class="materialize-textarea" maxlength="255"><?php echo ((isset($_POST['notiz']) || isset($_GET['id'])) && !empty($notiz)) ? $notiz : ''; ?></textarea>
-                    <label for="notiz">Interne Infos [optional]</label>
+                <div class="row">
+                    <div class="file-field input-field col s12 m4">
+                        <div class="btn">
+                            <span>Bild</span>
+                            <input disabled type="file" name="filename">
+                        </div>
+                        <div class="file-path-wrapper">
+                            <input class="file-path validate" type="text" value="<?php echo ((isset($_POST['filename']) || isset($_GET['id'])) && !empty($filename)) ? $filename : ''; ?>" placeholder="Bild [inaktiv]">
+                        </div>
+                    </div>
+                    <div class="input-field col s12 m8">
+                        <textarea id="notiz" name="notiz" class="materialize-textarea" maxlength="255"><?php echo ((isset($_POST['notiz']) || isset($_GET['id'])) && !empty($notiz)) ? $notiz : ''; ?></textarea>
+                        <label for="notiz">Interne Infos [optional]</label>
+                    </div>
                 </div>
-            </div>
-            <div class="row">
-                <div id="lp-switch" class="switch col s12 offset-s3 m3 offset-m1">
-                    <label>
-                        dispo | Aus
-                        <input name="indispo" type="checkbox" <?php echo ((isset($_GET['id']) || isset($_POST['indispo'])) && $indispo == true) ? "checked='checked'" : ""; ?>>
-                        <span class="lever"></span>
-                        Ein
-                    </label>
+                <div class="row">
+                    <div id="lp-switch" class="switch col s12 offset-s3 m3 offset-m1">
+                        <label>
+                            dispo | Aus
+                            <input name="indispo" type="checkbox" <?php echo ((isset($_GET['id']) || isset($_POST['indispo'])) && $indispo == true) ? "checked='checked'" : ""; ?>>
+                            <span class="lever"></span>
+                            Ein
+                        </label>
+                    </div>
+                    <div id="lp-switch" class="switch col s12 s12 offset-s3 m3 offset-m1">
+                        <label>
+                            aktiv | Aus
+                            <input name="aktiv" type="checkbox" <?php echo ((isset($_GET['id']) || isset($_POST['aktiv'])) && $aktiv == true) || (!isset($_GET['id']) && !isset($_POST['aktiv'])) ? "checked='checked'" : ""; ?>>
+                            <span class="lever"></span>
+                            Ein
+                        </label>
+                    </div>
                 </div>
-                <div id="lp-switch" class="switch col s12 s12 offset-s3 m3 offset-m1">
-                    <label>
-                        aktiv | Aus
-                        <input name="aktiv" type="checkbox" <?php echo ((isset($_GET['id']) || isset($_POST['aktiv'])) && $aktiv == true) || (!isset($_GET['id']) && !isset($_POST['aktiv'])) ? "checked='checked'" : ""; ?>>
-                        <span class="lever"></span>
-                        Ein
-                    </label>
-                </div>
-            </div>
-            <div class="row">
-                <button class="btn waves-effect waves-light" type="submit" name="action"><?php echo isset($_GET['id']) ? "Update" : "Speichern" ?>
-                    <i class="material-icons right">send</i>
-                </button>
-                <?php echo isset($_GET['id']) ? "<button data-target='modal1' id='lp-del' class='btn waves-effect waves-light red darken-3 right modal-trigger'>Löschen
+                <div class="row">
+                    <button class="btn waves-effect waves-light" type="submit" name="action"><?php echo isset($_GET['id']) ? "Update" : "Speichern" ?>
+                        <i class="material-icons right">send</i>
+                    </button>
+                    <?php echo isset($_GET['id']) ? "<button data-target='modal1' id='lp-del' class='btn waves-effect waves-light red darken-3 right modal-trigger'>Löschen
                     <i class='material-icons right'>delete</i>
                 </button>" : ""; ?>
-            </div>
-
-            <!-- Modal Structure -->
-            <div id="modal1" class="modal">
-                <div class="modal-content">
-                    <h4>Löschen</h4>
-                    <p>Wilst Du das Equipment permanent löschen?</p>
                 </div>
-                <div class="modal-footer">
-                    <button id='lp-del' class='btn waves-effect waves-light red darken-3 right' type='submit' name='delete'>Löschen
-                        <i class='material-icons right'>delete</i>
-                    </button>
+
+                <!-- Modal Structure -->
+                <div id="modal1" class="modal">
+                    <div class="modal-content">
+                        <h4>Löschen</h4>
+                        <p>Wilst Du das Set wirklich permanent löschen?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <a href="#!" class="modal-close waves-effect waves-green btn left">Nein</a>
+                        <button id='lp-del' class='btn waves-effect waves-light red darken-3 right' type='submit' name='delete'>Löschen
+                            <i class='material-icons right'>delete</i>
+                        </button>
+                    </div>
                 </div>
-            </div>
-    </div>
-    </div>
-    </form>
-    </div>
+        </div>
+        </div>
+        </form>
+        </div>
 
-</main>
+    </main>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
 
-        const options = {};
-        const elems = document.querySelectorAll('select');
-        const instances = M.FormSelect.init(elems, options);
-        //console.log(instances[0].getSelectedValues());
-        const optionsMod = {};
-        const elems2 = document.querySelectorAll('.modal');
-        const modal = M.Modal.init(elems2, optionsMod);
-    });
-</script>
-
+            const options = {};
+            const elems = document.querySelectorAll('select');
+            const instances = M.FormSelect.init(elems, options);
+            //console.log(instances[0].getSelectedValues());
+            const optionsMod = {};
+            const elems2 = document.querySelectorAll('.modal');
+            const modal = M.Modal.init(elems2, optionsMod);
+        });
+    </script>
 
 
 
-<?php
-require_once('./base/footer.php');
-?>
+
+    <?php
+    require_once('./base/footer.php');
+    ?>

@@ -66,7 +66,7 @@ function getLieferanten()
                         <ul class="collection">
                             <?php foreach ($bookings as $booking) : ?>
                                 <li id="<?php echo $booking['id']; ?>" class="collection-item black-text">
-                                    <div><?php echo $booking['rdate'] . ' | ' . $booking['name'] . '  ----------> ' . $booking['user']; ?><a href="#!" class="secondary-content cb"><i class="material-icons">delete</i></a></div>
+                                    <div><?php echo $booking['rdate'] . ' | ' . $booking['name'] . ' ---> ' . $booking['user']; ?><a href="#!" class="secondary-content cb"><i class="material-icons">delete</i></a></div>
                                 </li>
                             <?php endforeach; ?>
                         </ul>

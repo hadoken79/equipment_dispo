@@ -5,7 +5,6 @@ $msg = '';
 $msgClass = '';
 $sendactiv = '';
 
-session_start();
 
 if (isset($_POST['action'])) {
 
@@ -17,11 +16,14 @@ if (isset($_POST['action'])) {
 
     //user bekannt?
     if (authUser($user, $fulluser, $userdn, $pwd)) {
+
+        sessionStart(0, '/', 'localhost', false, true);
         $_SESSION['user'] = $fulluser;
         //falls Admin, menü aktiv || für test ad wird nach gruppe mathematicians gesucht
         if (checkGroup($user, 'mathematicians')) {
             $_SESSION['grp'] = 'adm';
         }
+
         Header('Location: index.php');
     } else {
         $msg = 'Username oder Passwort falsch';
@@ -95,6 +97,13 @@ function letEmWait()
     header('refresh: 30; url=login.php');
 }
 
+function sessionStart($lifetime, $path, $domain, $secure, $httpOnly)
+{
+    //Microsoft Edge kommt mit dieser konf nicht klar.. Bekannter Bug. Chromium Edge geht
+    session_set_cookie_params($lifetime, $path, $domain, $secure, $httpOnly);
+    session_start();
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -113,7 +122,9 @@ function letEmWait()
         <h5 class="white-text center-align">login</h5>
     </header>
     <main>
-
+        <div class="progress hide">
+            <div class="indeterminate"></div>
+        </div>
         <div id="lp-logwrapper" class="container">
             <?php if ($msg != '') : ?>
                 <div class="<?php echo $msgClass; ?>"><?php echo $msg; ?></div>
@@ -142,6 +153,14 @@ function letEmWait()
 
 
     </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let loader = document.querySelector('.progress');
+            document.querySelector('.btn').addEventListener('click', function() {
+                loader.classList.remove('hide');
+            })
+        });
+    </script>
 
     <?php
     if (!empty($sendactiv)) {

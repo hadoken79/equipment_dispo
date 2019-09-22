@@ -1,20 +1,14 @@
 <?php
 /*created by lp - 2019-07-27*/
 require_once('./db/PdoConnector.php');
-session_start();
-$_SESSION['fail'] = 0;
-if (!isset($_SESSION['user'])) {
-    Header('Location: login.php');
-}
-if (!isset($_SESSION['grp']) || @$_SESSION['grp'] != 'adm') {
-    $nav = 'hide';
-}
 
-if (isset($_GET['logout'])) {
+session_start();
+//falls user direkt auf index und nicht login gehen, muss die session zur abfrage ob eingeloggt, wieder zerstört werden.
+//die zu verwendende session wird in login.php erzeugt.
+if (isset($_GET['logout']) || !isset($_SESSION['user'])) {
     $_SESSION = array();
 
     // Session-Cookie löschen falls vorhanden.
-
     if (ini_get("session.use_cookies")) {
         $params = session_get_cookie_params();
         setcookie(
@@ -32,10 +26,19 @@ if (isset($_GET['logout'])) {
     Header('Location: login.php');
 }
 
+$_SESSION['fail'] = 0;
+if (!isset($_SESSION['grp']) || @$_SESSION['grp'] != 'adm') {
+    $nav = 'hide';
+}
+
+
+
+
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 
 <head>
     <meta charset="UTF-8">
@@ -47,6 +50,11 @@ if (isset($_GET['logout'])) {
 </head>
 
 <body>
+    <noscript>
+        <h4>Javascript scheint in Deinem Browser deaktiviert zu sein. <br>Diese Seite kann nicht ohne Javascript benutzt werden...</h4>
+        <a href="https://www.enable-javascript.com/de/">wie aktiviere ich javascript?</a>
+    </noscript>
+
     <header class="z-depth-3 <?php echo ($headTitle === 'invisible') ? 'hide' : ''; ?>">
         <ul id="slide-out" class="sidenav">
             <div class="background">
@@ -61,7 +69,7 @@ if (isset($_GET['logout'])) {
             <li><a class="waves-effect <?php echo $nav; ?>" href="lieferant.php"><i class="material-icons cyan-text text-darken-4">store</i>neuer Lieferant</a></li>
             <li><a class="waves-effect <?php echo $nav; ?>" href="kategorie.php"><i class="material-icons cyan-text text-darken-4">layers</i>neue Kategorie</a></li>
             <li><a class="waves-effect <?php echo $nav; ?>" href="lagerort.php"><i class="material-icons cyan-text text-darken-4">domain</i>neuer Lagerort</a></li>
-            <!--logout ist für jede Gruppe sichtbar-->
+            <!--logout ist für jede Gruppe verfügbar-->
             <li><a class="waves-effect" href="<?php echo $_SERVER['PHP_SELF'] . '?logout=true'; ?>"><i class="material-icons cyan-text text-darken-4">exit_to_app</i>logout</a></li>
         </ul>
         <a href="#" data-target="slide-out" id="lp-nav-trigger" class="sidenav-trigger btn-floating left"><i class="material-icons">menu</i></a>
@@ -69,6 +77,7 @@ if (isset($_GET['logout'])) {
 
             <?php echo $headTitle; ?></h5>
     </header>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {

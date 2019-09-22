@@ -34,7 +34,7 @@ if (isset($_POST['action'])) {
     $beschrieb = (isset($_POST['beschrieb']) && !empty($_POST['beschrieb'])) ? filter_var($_POST['beschrieb'], FILTER_SANITIZE_SPECIAL_CHARS) : 'N/A';
     $serien_nr = (isset($_POST['serien_nr']) && !empty($_POST['serien_nr'])) ? filter_var($_POST['serien_nr'], FILTER_SANITIZE_SPECIAL_CHARS) : 'N/A';
     $barcode = (isset($_POST['barcode']) && !empty($_POST['barcode'])) ? filter_var($_POST['barcode'], FILTER_SANITIZE_SPECIAL_CHARS) : null;
-    $kaufjahr = (isset($_POST['kaufjahr']) && !empty($_POST['kaufjahr'])) ? filter_var($_POST['kaufjahr'], FILTER_SANITIZE_SPECIAL_CHARS) : null;
+    $kaufjahr = (isset($_POST['kaufjahr']) && !empty($_POST['kaufjahr'])) ? filter_var($_POST['kaufjahr'], FILTER_SANITIZE_SPECIAL_CHARS) : 'N/A';
     $kaufpreis = (isset($_POST['kaufpreis']) && !empty($_POST['kaufpreis'])) ? filter_var($_POST['kaufpreis'], FILTER_SANITIZE_SPECIAL_CHARS) : null;
     $kategorie_id = (isset($_POST['kategorie_id']) && !empty($_POST['kategorie_id'])) ? filter_var($_POST['kategorie_id'], FILTER_SANITIZE_SPECIAL_CHARS) : null;
     $set_id = (isset($_POST['set_id']) && !empty($_POST['set_id'])) ? filter_var($_POST['set_id'], FILTER_SANITIZE_SPECIAL_CHARS) : null;
@@ -359,7 +359,7 @@ function deleteEquipment($equipment_id)
                 </div>
                 <div class="row">
                     <div class="input-field col s12 m6 l4">
-                        <input id="disabled" name="barcode" type="text" maxlength="100" value="<?php echo ((isset($_POST['barcode']) || isset($_GET['id'])) && !empty($barcode)) ? $barcode : ''; ?>">
+                        <input disabled name="barcode" type="text" maxlength="100" value="<?php echo ((isset($_POST['barcode']) || isset($_GET['id'])) && !empty($barcode)) ? $barcode : ''; ?>">
                         <label for="barcode">Barcode [inaktiv]</label>
                     </div>
                     <div class="input-field col s12 m6 l4">
@@ -433,10 +433,10 @@ function deleteEquipment($equipment_id)
                     <div class="file-field input-field col s12 m4">
                         <div class="btn">
                             <span>Bild</span>
-                            <input type="file" name="filename">
+                            <input disabled type="file" name="filename">
                         </div>
                         <div class="file-path-wrapper">
-                            <input class="file-path validate" type="text" value="<?php echo (isset($_POST['filename']) || isset($_GET['id'])) && $filename ? $filename : ''; ?>" placeholder="optionales Equipmentbild">
+                            <input class="file-path validate" type="text" value="<?php echo (isset($_POST['filename']) || isset($_GET['id'])) && $filename ? $filename : ''; ?>" placeholder="Bild [inaktiv]">
                         </div>
                     </div>
                     <div class="input-field col s12 m8">
@@ -457,9 +457,10 @@ function deleteEquipment($equipment_id)
                 <div id="modal1" class="modal">
                     <div class="modal-content">
                         <h4>Löschen</h4>
-                        <p>Wilst Du das Equipment permanent löschen?</p>
+                        <p>Wilst Du das Equipment wirklich permanent löschen?</p>
                     </div>
                     <div class="modal-footer">
+                        <a href="#!" class="modal-close waves-effect waves-green btn left">Nein</a>
                         <button id='lp-del' class='btn waves-effect waves-light red darken-3 right' type='submit' name='delete'>Löschen
                             <i class='material-icons right'>delete</i>
                         </button>
