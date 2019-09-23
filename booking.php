@@ -6,6 +6,8 @@ require_once('./db/PdoConnector.php');
 if (!isset($_SESSION)) {
     session_start();
 }
+//Initialisierung der Broadcast-Server-Message
+countBookings();
 
 
 if (isset($_GET['checkdate'])) {
@@ -31,6 +33,7 @@ if (isset($_GET['checkdate'])) {
 
     searchEquipment($searchstring, $searchIn);
 }
+
 //wird vom Client angefordert um Buchungen für gewähltes DAtum zu erfahren
 function checkforBooking($date)
 {
@@ -136,6 +139,7 @@ function bookEquipment($id, $date, $user, $callFromSet)
         //user erhält aus dieser Funktion nur eine Benachrichtigung bei einzelnem equipment.
         //für Sets macht das die bookSet funktion.
         if (!$callFromSet) {
+            
             //test um langsame Verbindung und loader zu testen.
             //sleep(5);
             $sqldate = strtotime($date);
@@ -143,12 +147,27 @@ function bookEquipment($id, $date, $user, $callFromSet)
             echo 'Equipment wurde für ' . $user .  ' <br>am '  . $readabledate . ' gebucht. <br> Technik wird informiert';
             //mail oder slack an technik
         };
+        //Update für Broadcast Message
+        countBookings();
+        
     } else {
         echo "Buchung hat nicht geklappt, <br>bitte mit der Technik in Verbindung setzten";
     }
     $pdo = null;
 }
 
+function countBookings()
+{
+    $pdo = PdoConnector::getConn();
+    $countQuery = "SELECT COUNT(buchung_id) AS ids FROM buchung WHERE storniert = false;";
+    $stmt = $pdo->prepare($countQuery);
+    $stmt->execute();
+    $result = $stmt->fetch();
+    $count = $result->ids;
+    $_SESSION['broadcast'] = $count;
+    //echo $result;
+    $pdo = null;
+}
 
 function bookSet($id, $date, $user)
 {
