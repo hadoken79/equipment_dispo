@@ -60,7 +60,7 @@ function getLieferanten()
     <div class="container">
         <div class="row">
             <div class="col s12 m12">
-                <div class="card large blue-grey lighten-1 white-text">
+                <div class="card large">
                     <div class="card-content">
                         <span class="card-title">nächste Buchungen</span>
                         <ul class="collection">
@@ -79,11 +79,10 @@ function getLieferanten()
         </div>
         <div class="row">
             <div class="col s12 m6">
-                <div class="card blue-grey lighten-1">
-                    <div class="card-content white-text">
+                <div class="card tiny">
+                    <div class="card-content">
                         <span class="card-title">Equipment</span>
-                        <p>I am a very simple card. I am good at containing small bits of information.
-                            I am convenient because I require little markup to use effectively.</p>
+                        <p>Hier kann unser Equipment eingesehen und angepasst werden.</p>
                     </div>
                     <div class="card-action">
                         <a href="equipment-view.php">Verwalten</a>
@@ -91,11 +90,10 @@ function getLieferanten()
                 </div>
             </div>
             <div class="col s12 m6">
-                <div class="card blue-grey lighten-1">
-                    <div class="card-content white-text">
+                <div class="card tiny">
+                    <div class="card-content">
                         <span class="card-title">Sets</span>
-                        <p>I am a very simple card. I am good at containing small bits of information.
-                            I am convenient because I require little markup to use effectively.</p>
+                        <p>Eine Übersicht der Sets und zugehörigem Equipment.</p>
                     </div>
                     <div class="card-action">
                         <a href="set-view.php">Verwalten</a>
@@ -105,11 +103,10 @@ function getLieferanten()
         </div>
         <div class="row">
             <div class="col s12 m6">
-                <div class="card blue-grey lighten-1">
-                    <div class="card-content white-text">
+                <div class="card tiny">
+                    <div class="card-content">
                         <span class="card-title">Lieferanten</span>
-                        <p>I am a very simple card. I am good at containing small bits of information.
-                            I am convenient because I require little markup to use effectively.</p>
+                        <p>Kontaktdaten unserer Lieferanten für Equipment.</p>
                     </div>
                     <div class="card-action">
                         <a href="lieferanten-view.php">Verwalten</a>
@@ -117,11 +114,10 @@ function getLieferanten()
                 </div>
             </div>
             <div class="col s12 m6">
-                <div class="card blue-grey lighten-1">
-                    <div class="card-content white-text">
+                <div class="card tiny">
+                    <div class="card-content">
                         <span class="card-title">Kategorien</span>
-                        <p>I am a very simple card. I am good at containing small bits of information.
-                            I am convenient because I require little markup to use effectively.</p>
+                        <p>Alle erfassten Kategorien.</p>
                     </div>
                     <div class="card-action">
                         <a href="kategorien-view.php">Verwalten</a>
@@ -131,11 +127,10 @@ function getLieferanten()
         </div>
         <div class="row">
             <div class="col s12 m6">
-                <div class="card blue-grey lighten-1">
-                    <div class="card-content white-text">
+                <div class="card tiny">
+                    <div class="card-content">
                         <span class="card-title">Lagerorte</span>
-                        <p>I am a very simple card. I am good at containing small bits of information.
-                            I am convenient because I require little markup to use effectively.</p>
+                        <p>Alle erfassten Lagerorte.</p>
                     </div>
                     <div class="card-action">
                         <a href="lagerort-view.php">Verwalten</a>

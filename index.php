@@ -81,7 +81,7 @@ $pdo = null;
                     <!--<label>filtere nach Kategorien</label>-->
                 </div>
             </aside>
-            <!-- Die Collection Elemente -->
+            <!-- Collection SET Elemente -->
             <div id="lp-card" class="col s12 m9">
                 <ul class="collection">
                     <?php
@@ -103,6 +103,7 @@ $pdo = null;
                         echo "<a href='#!' class='secondary-content bookset {$linkvis}'><i class='material-icons'>playlist_add</i></a>";
                         echo "</li>";
                     }
+                    //Equipment Elemente
                     foreach ($equipments as $equipment) {
                         $titel = $equipment->name;
                         $beschrieb = $equipment->beschrieb;

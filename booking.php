@@ -187,7 +187,9 @@ function bookSet($id, $date, $user)
         bookEquipment($eq_id->equipment_id, $date, $user, true);
     }
     $pdo = null;
-    echo "Set wurde für " . $user . " am " . $date . " gebucht.<br> Technik wird informiert";
+    $sqldate = strtotime($date);
+    $readabledate = date('d-M-Y', $sqldate);
+    echo "Set wurde für " . $user . " am " . $readabledate . " gebucht.<br> Technik wird informiert";
     //mail oder slack an technik
 }
 
