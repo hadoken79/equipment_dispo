@@ -52,6 +52,8 @@ if (isset($_POST['action'])) {
     // Obligatorische Felder prüfen.
     if (!empty($name) && !empty($kategorie_id)) {
 
+        if ($serien_nr == 'N/A' || numberExists($serien_nr) == false) {
+
         //Bevor das Equipment gespeichert werden kann, muss falls ein Equipmentbild gesetzt ist, noch dessen id erzeugt werden.
         if (!empty($filename)) {
             $bild_id = insertFilename($filename);
@@ -81,6 +83,10 @@ if (isset($_POST['action'])) {
                 $msg = 'Beim Versuch in die Datenbank zu speichern ist ein Fehler aufgetreten. ev. gibt es ein Verbindungsproblem.';
                 $msgClass = 'card-panel red lighten-1';
             }
+        }
+        } else {
+        $msg = 'Seriennummer wurde bereits erfasst';
+        $msgClass = 'card-panel red lighten-1';
         }
     } else {
         //fallback, falls browser html5 required nicht unterstützt.
@@ -156,6 +162,22 @@ function insertLieferant_Equipment($lieferant_id, $equipment_id)
         $msgClass = 'card-panel red lighten-1';
     }
     $pdo = null;
+}
+
+function numberExists($serien_nr)
+{
+    $pdo = PdoConnector::getConn();
+    $checkNumberQuery = "SELECT COUNT(equipment_id) AS ids FROM equipment WHERE serien_nr = ? AND geloescht = false;";
+    $stmt = $pdo->prepare($checkNumberQuery);
+    $stmt->execute([$serien_nr]);
+    $hits = $stmt->fetch();
+    $pdo = null;
+    //wenn seriennummer bereits im system true
+    if ($hits->ids == 0) {
+        return false;
+    } else {
+        return true;
+    }
 }
 
 function updateLieferant_Equipment($lieferant_id, $equipment_id)

@@ -254,10 +254,14 @@ function cancelBooking($id)
     };
 }
 
-function searchEquipment($searchstring, $searchIn)
+function searchEquipment($searchstring)
 {
     $pdo = PdoConnector::getConn();
-    $searchQuery = "SELECT equipment_id FROM equipment WHERE $searchIn LIKE :searchstring AND geloescht = false;";
+    $searchQuery = "SELECT equipment_id FROM equipment 
+    WHERE name LIKE :searchstring 
+    OR serien_nr LIKE :searchstring 
+    OR kaufjahr LIKE :searchstring 
+    OR beschrieb LIKE :searchstring AND geloescht = false;";
     $searchstring = "%$searchstring%";
     $stmt = $pdo->prepare($searchQuery);
     $stmt->execute(array('searchstring' => $searchstring));

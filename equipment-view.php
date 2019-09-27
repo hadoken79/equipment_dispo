@@ -54,22 +54,6 @@ function getAllEquipments($order, $dir)
                         <i class="material-icons prefix">search</i>
                         <textarea id="icon_prefix2" class="materialize-textarea lp-search"></textarea>
                         <label for="icon_prefix2">suchen</label>
-                    </div>
-                    <form action="#">
-                        <p>
-                            <label>
-                                <input id='name' name="filter" type="radio" checked />
-                                <span>Name</span>
-                            </label>
-                        </p>
-                        <p>
-                            <label>
-                                <input id='serien_nr' name="filter" type="radio" />
-                                <span>Seriennummer</span>
-                            </label>
-                        </p>
-                    </form>
-                </div>
             </form>
         </div>
         <table class="striped responsive-table">
@@ -115,19 +99,13 @@ function getAllEquipments($order, $dir)
 
     function searchequipment(e) {
         let input = e.target.value;
-        let radio_name = document.querySelector('#name');
-        let radio_serie = document.querySelector('#serien_nr');
-        let searchCol;
-
-        console.log(radio_name.checked);
 
         //console.log(input);
         const xhr = new XMLHttpRequest();
         xhr.open('POST', 'booking.php', true);
         xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-        radio_name.checked ? serchCol = 'name' : serchCol = 'serien_nr';
 
-        let htmlparams = `search=${input}&searchIn=${serchCol}`;
+        let htmlparams = `search=${input}`;
 
 
         xhr.onload = function() {
