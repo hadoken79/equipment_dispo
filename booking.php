@@ -28,13 +28,12 @@ if (isset($_GET['checkdate'])) {
     cancelBooking($id);
 } else if (isset($_POST['search'])) {
     $searchstring = $_POST['search'];
-    $searchIn = isset($_POST['searchIn']) ? filter_var($_POST['searchIn'], FILTER_SANITIZE_SPECIAL_CHARS) : 'name';
 
 
-    searchEquipment($searchstring, $searchIn);
+    searchEquipment($searchstring);
 }
 
-//wird vom Client angefordert um Buchungen für gewähltes DAtum zu erfahren
+//wird vom Client angefordert um Buchungen für gewähltes Datum zu erfahren
 function checkforBooking($date)
 {
     $pdo = PdoConnector::getConn();
@@ -42,7 +41,8 @@ function checkforBooking($date)
     equipment.equipment_id AS eq_id,
     equipment.name AS eq_name,
     set_.set_id AS set_id,
-    set_.name AS set_name
+    set_.name AS set_name,
+    buchung.user AS user
     FROM buchung 
     LEFT JOIN equipment ON buchung.equipment_id = equipment.equipment_id
     LEFT JOIN set_ ON equipment.set_id = set_.set_id
