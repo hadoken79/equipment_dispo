@@ -16,12 +16,14 @@ if (isset($_POST['action'])) {
 
     //user bekannt?
     if (authUser($user, $fulluser, $userdn, $pwd)) {
-
-        sessionStart(0, '/', 'localhost', false, true);
+        //gültigkeit, pfad, domain, secure, httponly
+        sessionStart(0, '/', '', false, false);
+        
         $_SESSION['user'] = $fulluser;
         //falls Admin, menü aktiv || für test ad wird nach gruppe mathematicians gesucht
         if (checkGroup($user, 'mathematicians')) {
             $_SESSION['grp'] = 'adm';
+            echo "<br>gruppe Admin";
         }
 
         Header('Location: index.php');

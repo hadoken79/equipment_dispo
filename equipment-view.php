@@ -50,10 +50,13 @@ function getAllEquipments($order, $dir)
         <div class="row">
             <form class="col s12">
                 <div class="row">
-                    <div class="input-field col s6">
+                    <div class="input-field col s12">
                         <i class="material-icons prefix">search</i>
                         <textarea id="icon_prefix2" class="materialize-textarea lp-search"></textarea>
                         <label for="icon_prefix2">suchen</label>
+                    </div>
+                </div>
+                    
             </form>
         </div>
         <table class="striped responsive-table">

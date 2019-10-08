@@ -65,7 +65,7 @@ function getLieferanten()
                         <span class="card-title">nächste Buchungen</span>
                         <ul class="collection">
                             <?php foreach ($bookings as $booking) : ?>
-                                <li id="<?php echo $booking['id']; ?>" class="collection-item black-text">
+                                <li id="<?php echo $booking['id']; ?>" class="collection-item black-text <?php echo ($booking['rdate'] == date('d-m-Y')) ? "yellow accent-2" : "";?>">
                                     <div><?php echo $booking['rdate'] . ' | ' . $booking['name'] . ' ---> ' . $booking['user']; ?><a href="#!" class="secondary-content cb"><i class="material-icons">delete</i></a></div>
                                 </li>
                             <?php endforeach; ?>

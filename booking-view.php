@@ -51,7 +51,7 @@ if (isset($_GET['sort'])) {
 
             <tbody>
                 <?php foreach ($bookings as $booking) : ?>
-                    <tr id="<?php echo $booking->buchung_id; ?>" class="hoverable">
+                    <tr id="<?php echo $booking->buchung_id; ?>" class="hoverable <?php echo ($booking->reserviert_fuer == date('Y-m-d')) ? "yellow accent-2" : "";?>">
                         <td><a class=" waves-effect tooltipped cb" data-position="top" data-tooltip="Buchung stornieren" href="#!"><i class="material-icons cyan-text text-darken-4">delete</i></a></td>
                         <td><?php echo $booking->reserviert_fuer; ?></td>
                         <td><?php echo $booking->name; ?></td>

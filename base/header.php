@@ -2,7 +2,10 @@
 /*created by lp - 2019-07-27*/
 require_once('./db/PdoConnector.php');
 
-session_start();
+if (!isset($_SESSION)) {
+    session_start();
+}
+
 //falls user direkt auf index und nicht login gehen, muss die session zur abfrage ob eingeloggt, wieder zerstört werden.
 //die zu verwendende session wird in login.php erzeugt.
 if (isset($_GET['logout']) || !isset($_SESSION['user'])) {
