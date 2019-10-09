@@ -10,19 +10,19 @@ if (isset($_POST['action'])) {
 
     $user = (isset($_POST['user']) && !empty($_POST['user'])) ? filter_var($_POST['user'], FILTER_SANITIZE_SPECIAL_CHARS) : null;
     $fulluser = '';
-    $pwd = (isset($_POST['password']) && !empty($_POST['password'])) ? $_POST['password'] : '0'; //im Moment ist anonymer Bind möglich, darum darf pwd nicht leer sein.
-    $userdn = '';
+    $pwd = (isset($_POST['password']) && !empty($_POST['password'])) ? $_POST['password'] : 0; //im Moment ist anonymer Bind möglich, darum darf pwd nicht leer sein.
+    $ldap_usr_dn = '';
     $grp = '';
 
     //user bekannt?
-    if (authUser($user, $fulluser, $userdn, $pwd)) {
+    if (authUser($user, $fulluser, $ldap_usr_dn, $pwd)) {
         //gültigkeit, pfad, domain, secure, httponly
         sessionStart(0, '/', '', false, false);
         
         $_SESSION['user'] = $fulluser;
         
         //falls Admin, menü aktiv || für es wird nach TB-Admin gesucht
-        if (checkGroup($fulluser, 'TB-Admin')) {
+        if (checkGroup($fulluser, 'TB-Admin', $ldap_usr_dn)) {
             $_SESSION['grp'] = 'adm';
         }
         Header('Location: index.php');
@@ -39,52 +39,54 @@ if (isset($_POST['action'])) {
 }
 
 
-function authUser($user, &$fulluser, &$userdn, $pwd)
+function authUser($user, &$fulluser, &$ldap_usr_dn, $pwd)
 {
     $ldap_dom = ADDOM;
-    $ldap_bindusr = ADUSR;
-    $ldap_bindpwd = ADPWD;
-    $loginuser = '';
+    $ldap_search_usr = ADUSR;
+    $ldap_search_pwd = ADPWD;
+    
    
-    $ldap_rdn = ADRDN;
-    $ldap_bind_usr_dn = 'CN=' . $ldap_bindusr . ',OU=Admins,DC=telebasel,DC=local';
+    $ldap_search_rdn = ADRDN;
+    $ldap_search_usr_dn = 'CN=' . $ldap_search_usr . ',OU=Admins,DC=telebasel,DC=local';
 
-                 
+    //darf nicht leer sein               
     $ldap_usr_pwd = $pwd;
 
     $ldap_con = ldap_connect($ldap_dom);
     ldap_set_option($ldap_con, LDAP_OPT_PROTOCOL_VERSION, 3);
 
     //nach user suchen
-    if (@ldap_bind($ldap_con, $ldap_bind_usr_dn, $ldap_bindpwd)) {
+    if (@ldap_bind($ldap_con, $ldap_search_usr_dn, $ldap_search_pwd)) {
         
         $filter = "sAMAccountName={$user}";
-        $result = ldap_search($ldap_con, $ldap_rdn, $filter) or exit("unable to search");
+        $result = ldap_search($ldap_con, $ldap_search_rdn, $filter) or exit("unable to search");
         $entries = ldap_get_entries($ldap_con, $result);
 
+        ldap_unbind($ldap_con);
+        
         if(count($entries) > 1){
-            //bind mit user versuchen
+        
             $fulluser = $entries[0]['name'][0];
-            //offenbar muss bind mit full username erfolgen
-            $ldap_usr_dn = 'CN=' . $fulluser . ',OU=Windows 10,OU=Users,OU=Staff,DC=telebasel,DC=local';
-            //$loginuser = $entries[0]['samaccountname'][0];
+            $ldap_usr_dn = $entries[0]['distinguishedname'][0];
 
-           /*  echo '<pre>';
+            //echo $ldap_usr_dn;
+            
+          /*echo '<pre>';
             print_r($entries);
             echo '<pre>';
             echo '<hr>';
             echo 'name= '. $fulluser . '<br>';
-            echo 'loginname= '. $loginuser . '<br>'; */
-            
+            echo 'loginname= '. $loginuser . '<br>';  */
+
+            //neue Verbindung
+            $ldap_con = ldap_connect($ldap_dom);
+            //bind mit user versuchen
             if (@ldap_bind($ldap_con, $ldap_usr_dn, $ldap_usr_pwd)) {
                 ldap_unbind($ldap_con);
                 return true;
             }else {
-                ldap_unbind($ldap_con);
                 return false;
             }
-
-            
         } else{
             return false;
         }
@@ -94,20 +96,19 @@ function authUser($user, &$fulluser, &$userdn, $pwd)
     }
 }
 
-function checkGroup($user, $group)
+function checkGroup($user, $group, $ldap_usr_dn)
 {
     $ldap_dom = ADDOM;
-    $ldap_bindusr = ADUSR;
-    $user_dn = "CN=" . $user . ",OU=Windows 10,OU=Users,OU=Staff,DC=telebasel,DC=local";
+    $ldap_search_usr = ADUSR;
     $group_dn = "OU=Groups,OU=Staff,DC=telebasel,DC=local";
-    $ldap_bindpwd = ADPWD;
-    $ldap_usr_dn = 'CN=' . $ldap_bindusr . ',OU=Admins,DC=telebasel,DC=local';
+    $ldap_search_pwd = ADPWD;
+    $ldap_search_usr_dn = 'CN=' . $ldap_search_usr . ',OU=Admins,DC=telebasel,DC=local';
     
     $ldap_con = ldap_connect($ldap_dom);
 
     ldap_set_option($ldap_con, LDAP_OPT_PROTOCOL_VERSION, 3);
 
-    if (@ldap_bind($ldap_con, $ldap_usr_dn, $ldap_bindpwd)) {
+    if (@ldap_bind($ldap_con, $ldap_search_usr_dn, $ldap_search_pwd)) {
 
     $filter = "CN={$group}";
     $result = ldap_search($ldap_con, $group_dn, $filter) or exit("unable to search");
@@ -118,13 +119,13 @@ function checkGroup($user, $group)
     //echo '<pre>';
     //echo '<hr>';
 
-    if (in_array($user_dn, $entries[0]['member'])) {
-        
-       return true;
-    } else {
-        echo "nope";
-        return false;
-    }
+        if (in_array($ldap_usr_dn, $entries[0]['member'])) {
+            
+        return true;
+        } else {
+            //echo "nope";
+            return false;
+        }
     }
   
 }
@@ -138,7 +139,6 @@ function letEmWait()
 
 function sessionStart($lifetime, $path, $domain, $secure, $httpOnly)
 {
-    //Microsoft Edge kommt mit dieser konf nicht klar.. Bekannter Bug. Chromium Edge geht
     session_set_cookie_params($lifetime, $path, $domain, $secure, $httpOnly);
     session_start();
 }
