@@ -10,7 +10,7 @@ if (isset($_POST['action'])) {
 
     $user = (isset($_POST['user']) && !empty($_POST['user'])) ? filter_var($_POST['user'], FILTER_SANITIZE_SPECIAL_CHARS) : null;
     $fulluser = '';
-    $pwd = (isset($_POST['password']) && !empty($_POST['password'])) ? $_POST['password'] : null;
+    $pwd = (isset($_POST['password']) && !empty($_POST['password'])) ? $_POST['password'] : '0'; //im Moment ist anonymer Bind möglich, darum darf pwd nicht leer sein.
     $userdn = '';
     $grp = '';
 
@@ -20,12 +20,11 @@ if (isset($_POST['action'])) {
         sessionStart(0, '/', '', false, false);
         
         $_SESSION['user'] = $fulluser;
-        //falls Admin, menü aktiv || für test ad wird nach gruppe mathematicians gesucht
-        if (checkGroup($user, 'mathematicians')) {
+        
+        //falls Admin, menü aktiv || für es wird nach TB-Admin gesucht
+        if (checkGroup($fulluser, 'TB-Admin')) {
             $_SESSION['grp'] = 'adm';
-            echo "<br>gruppe Admin";
         }
-
         Header('Location: index.php');
     } else {
         $msg = 'Username oder Passwort falsch';
@@ -38,58 +37,96 @@ if (isset($_POST['action'])) {
         }
     }
 }
+
+
 function authUser($user, &$fulluser, &$userdn, $pwd)
 {
     $ldap_dom = ADDOM;
+    $ldap_bindusr = ADUSR;
+    $ldap_bindpwd = ADPWD;
+    $loginuser = '';
+   
     $ldap_rdn = ADRDN;
-    $ldap_dn = 'uid=' . $user . ',' . $ldap_rdn;
-    $ldap_password = $pwd;
+    $ldap_bind_usr_dn = 'CN=' . $ldap_bindusr . ',OU=Admins,DC=telebasel,DC=local';
+
+                 
+    $ldap_usr_pwd = $pwd;
 
     $ldap_con = ldap_connect($ldap_dom);
     ldap_set_option($ldap_con, LDAP_OPT_PROTOCOL_VERSION, 3);
 
-
-    if (@ldap_bind($ldap_con, $ldap_dn, $ldap_password)) {
-        $filter = "uid={$user}";
+    //nach user suchen
+    if (@ldap_bind($ldap_con, $ldap_bind_usr_dn, $ldap_bindpwd)) {
+        
+        $filter = "sAMAccountName={$user}";
         $result = ldap_search($ldap_con, $ldap_rdn, $filter) or exit("unable to search");
         $entries = ldap_get_entries($ldap_con, $result);
 
+        if(count($entries) > 1){
+            //bind mit user versuchen
+            $fulluser = $entries[0]['name'][0];
+            //offenbar muss bind mit full username erfolgen
+            $ldap_usr_dn = 'CN=' . $fulluser . ',OU=Windows 10,OU=Users,OU=Staff,DC=telebasel,DC=local';
+            //$loginuser = $entries[0]['samaccountname'][0];
 
-        $fulluser = $entries[0]['cn'][0];
-        $userdn = $entries[0]['dn'][0];
-        ldap_unbind($ldap_con);
+           /*  echo '<pre>';
+            print_r($entries);
+            echo '<pre>';
+            echo '<hr>';
+            echo 'name= '. $fulluser . '<br>';
+            echo 'loginname= '. $loginuser . '<br>'; */
+            
+            if (@ldap_bind($ldap_con, $ldap_usr_dn, $ldap_usr_pwd)) {
+                ldap_unbind($ldap_con);
+                return true;
+            }else {
+                ldap_unbind($ldap_con);
+                return false;
+            }
 
-        return true;
+            
+        } else{
+            return false;
+        }
+       
     } else {
-        return false;
+        echo "Keine Verbindung zu Active Directory";
     }
 }
 
 function checkGroup($user, $group)
 {
     $ldap_dom = ADDOM;
-    $user_dn = "uid={$user},dc=example,dc=com";
-    $group_dn = "ou={$group},dc=example,dc=com";
-
-
-
+    $ldap_bindusr = ADUSR;
+    $user_dn = "CN=" . $user . ",OU=Windows 10,OU=Users,OU=Staff,DC=telebasel,DC=local";
+    $group_dn = "OU=Groups,OU=Staff,DC=telebasel,DC=local";
+    $ldap_bindpwd = ADPWD;
+    $ldap_usr_dn = 'CN=' . $ldap_bindusr . ',OU=Admins,DC=telebasel,DC=local';
+    
     $ldap_con = ldap_connect($ldap_dom);
+
     ldap_set_option($ldap_con, LDAP_OPT_PROTOCOL_VERSION, 3);
 
-    $attributes = array('uniquemember');
-    $filter = "ou={$group}";
+    if (@ldap_bind($ldap_con, $ldap_usr_dn, $ldap_bindpwd)) {
+
+    $filter = "CN={$group}";
     $result = ldap_search($ldap_con, $group_dn, $filter) or exit("unable to search");
     $entries = ldap_get_entries($ldap_con, $result);
 
     //echo '<pre>';
-    //print_r($entries[0]['uniquemember']);
+    //print_r($entries);
     //echo '<pre>';
     //echo '<hr>';
-    if (in_array($user_dn, $entries[0]['uniquemember'])) {
-        return true;
+
+    if (in_array($user_dn, $entries[0]['member'])) {
+        
+       return true;
     } else {
+        echo "nope";
         return false;
     }
+    }
+  
 }
 
 
