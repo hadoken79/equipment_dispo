@@ -42,15 +42,11 @@ if (isset($_POST['action'])) {
 function authUser($user, &$fulluser, &$ldap_usr_dn, $pwd)
 {
     $ldap_dom = ADDOM;
-    $ldap_search_usr = ADUSR;
+    $ldap_search_usr_dn = ADUSR;
     $ldap_search_pwd = ADPWD;
-    
-   
     $ldap_search_rdn = ADRDN;
-    $ldap_search_usr_dn = 'CN=' . $ldap_search_usr . ',OU=Admins,DC=telebasel,DC=local';
-
-    //darf nicht leer sein               
-    $ldap_usr_pwd = $pwd;
+                
+    $ldap_usr_pwd = $pwd; //darf nicht leer sein   
 
     $ldap_con = ldap_connect($ldap_dom);
     ldap_set_option($ldap_con, LDAP_OPT_PROTOCOL_VERSION, 3);
@@ -65,8 +61,8 @@ function authUser($user, &$fulluser, &$ldap_usr_dn, $pwd)
         ldap_unbind($ldap_con);
         
         if(count($entries) > 1){
-        
-            $fulluser = $entries[0]['name'][0];
+            //falls user bekannt, credentials abfragen
+            $fulluser = $entries[0]['name'][0]; //per Referenz, für Session
             $ldap_usr_dn = $entries[0]['distinguishedname'][0];
 
             //echo $ldap_usr_dn;
@@ -99,11 +95,11 @@ function authUser($user, &$fulluser, &$ldap_usr_dn, $pwd)
 function checkGroup($user, $group, $ldap_usr_dn)
 {
     $ldap_dom = ADDOM;
-    $ldap_search_usr = ADUSR;
-    $group_dn = "OU=Groups,OU=Staff,DC=telebasel,DC=local";
+    $ldap_search_usr_dn = ADUSR;
+    $group_dn = ADGRPDN;
     $ldap_search_pwd = ADPWD;
-    $ldap_search_usr_dn = 'CN=' . $ldap_search_usr . ',OU=Admins,DC=telebasel,DC=local';
-    
+
+
     $ldap_con = ldap_connect($ldap_dom);
 
     ldap_set_option($ldap_con, LDAP_OPT_PROTOCOL_VERSION, 3);
