@@ -138,7 +138,6 @@ function letEmWait()
 
 function sessionStart($lifetime, $path, $domain, $secure, $httpOnly)
 {
-    //Microsoft Edge kommt mit dieser konf nicht klar.. Bekannter Bug. Chromium Edge geht
     session_set_cookie_params($lifetime, $path, $domain, $secure, $httpOnly);
     session_start();
 }

@@ -89,7 +89,7 @@ $pdo = null;
                         $titel = $set->name;
                         $beschrieb = $set->beschrieb;
                         $pfad = 'c:/bilder/';
-                        $bild = $set->filename ? $pfad . $set->filename : 'images/yuna.jpg';
+                        $bild = $set->filename ? $pfad . $set->filename : 'images/'. $set->kategorie_id.'.jpg';
                         $linkvis = '';
                         if (!$set->aktiv) {
                             $titel = '<b>Nicht verfügbar</b>';
@@ -108,7 +108,7 @@ $pdo = null;
                         $titel = $equipment->name;
                         $beschrieb = $equipment->beschrieb;
                         $pfad = 'c:/bilder/';
-                        $bild = $equipment->filename ? $pfad . $equipment->filename : 'images/yuna.jpg';
+                        $bild = $equipment->filename ? $pfad . $equipment->filename : 'images/'. $equipment->kategorie_id.'.jpg';
                         $linkvis = '';
                         if (!$equipment->aktiv) {
                             $titel = '<b>Nicht verfügbar</b>';
