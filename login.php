@@ -123,7 +123,6 @@ function checkGroup($user, $group, $ldap_usr_dn)
             
         return true;
         } else {
-            //echo "nope";
             return false;
         }
     }
