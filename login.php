@@ -1,6 +1,6 @@
 <?php
 /*created by lp - 18.08.2019*/
-require_once('conf\config.php');
+require_once('conf/config.php');
 $msg = '';
 $msgClass = '';
 $sendactiv = '';
@@ -52,7 +52,7 @@ function authUser($user, &$fulluser, &$ldap_usr_dn, $pwd)
     ldap_set_option($ldap_con, LDAP_OPT_PROTOCOL_VERSION, 3);
 
     //nach user suchen
-    if (@ldap_bind($ldap_con, $ldap_search_usr_dn, $ldap_search_pwd)) {
+    if (ldap_bind($ldap_con, $ldap_search_usr_dn, $ldap_search_pwd)) {
         
         $filter = "sAMAccountName={$user}";
         $result = ldap_search($ldap_con, $ldap_search_rdn, $filter) or exit("unable to search");
