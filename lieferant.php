@@ -41,8 +41,7 @@ if (isset($_POST['action'])) {
         if ($update) {
 
             if (updateLieferant($lieferant_id, $firma, $strasse, $plz, $ort, $kontakt, $tel, $web)) {
-                echo $lieferant_id, $firma, $strasse, $plz, $ort, $kontakt, $tel, $web;
-                //Header('Location: lieferant.php?success=1');
+                Header('Location: lieferant.php?success=1');
             } else {
                 $msg = 'Beim Versuch das Update in die Datenbank zu speichern ist ein Fehler aufgetreten. ev. gibt es ein Verbindungsproblem.';
                 $msgClass = 'card-panel red lighten-1';

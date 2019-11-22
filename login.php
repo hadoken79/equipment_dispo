@@ -47,7 +47,7 @@ function authUser($user, &$fulluser, &$ldap_usr_dn, $pwd)
     $ldap_search_rdn = ADRDN;
                 
     $ldap_usr_pwd = $pwd; //darf nicht leer sein   
-
+    
     $ldap_con = ldap_connect($ldap_dom);
     ldap_set_option($ldap_con, LDAP_OPT_PROTOCOL_VERSION, 3);
 
@@ -77,7 +77,7 @@ function authUser($user, &$fulluser, &$ldap_usr_dn, $pwd)
             //neue Verbindung
             $ldap_con = ldap_connect($ldap_dom);
             //bind mit user versuchen
-            if (@ldap_bind($ldap_con, $ldap_usr_dn, $ldap_usr_pwd)) {
+            if ($info = ldap_bind($ldap_con, utf8_decode($ldap_usr_dn), $ldap_usr_pwd)) {
                 ldap_unbind($ldap_con);
                 return true;
             }else {
