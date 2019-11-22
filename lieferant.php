@@ -32,7 +32,7 @@ if (isset($_POST['action'])) {
     $tel = (isset($_POST['tel']) && !empty($_POST['tel'])) ? filter_var($_POST['tel'], FILTER_SANITIZE_SPECIAL_CHARS) : "N/A";
     $web = (isset($_POST['web']) && !empty($_POST['web'])) ? filter_var($_POST['web'], FILTER_SANITIZE_SPECIAL_CHARS) : "N/A";
     $update = (isset($_POST['update']) && !empty($_POST['update'])) ? filter_var($_POST['update'], FILTER_SANITIZE_SPECIAL_CHARS) : false;
-    $lieferant_id = (isset($_POST['lieferant_id']) && !empty($_POST['lieferant'])) ? filter_var($_POST['lieferant_id'], FILTER_SANITIZE_SPECIAL_CHARS) : null;
+    $lieferant_id = (isset($_POST['lieferant_id']) && !empty($_POST['lieferant_id'])) ? filter_var($_POST['lieferant_id'], FILTER_SANITIZE_SPECIAL_CHARS) : null;
 
     // Obligatorische Felder prüfen.
     if (!empty($firma)) {
@@ -41,8 +41,8 @@ if (isset($_POST['action'])) {
         if ($update) {
 
             if (updateLieferant($lieferant_id, $firma, $strasse, $plz, $ort, $kontakt, $tel, $web)) {
-
-                Header('Location: lieferant.php?success=1');
+                echo $lieferant_id, $firma, $strasse, $plz, $ort, $kontakt, $tel, $web;
+                //Header('Location: lieferant.php?success=1');
             } else {
                 $msg = 'Beim Versuch das Update in die Datenbank zu speichern ist ein Fehler aufgetreten. ev. gibt es ein Verbindungsproblem.';
                 $msgClass = 'card-panel red lighten-1';
