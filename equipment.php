@@ -52,38 +52,38 @@ if (isset($_POST['action'])) {
     // Obligatorische Felder prüfen.
     if (!empty($name) && !empty($kategorie_id)) {
 
-        if ($serien_nr == 'N/A' || numberExists($serien_nr) == false) {
+        if ($serien_nr == 'N/A' || $update || numberExists($serien_nr) == false) {
 
-        //Bevor das Equipment gespeichert werden kann, muss falls ein Equipmentbild gesetzt ist, noch dessen id erzeugt werden.
-        if (!empty($filename)) {
-            $bild_id = insertFilename($filename);
-        };
+            //Bevor das Equipment gespeichert werden kann, muss falls ein Equipmentbild gesetzt ist, noch dessen id erzeugt werden.
+            if (!empty($filename)) {
+                $bild_id = insertFilename($filename);
+            };
 
-        if ($update) {
+            if ($update) {
 
-            if (updateEquipment($equipment_id, $name, $beschrieb, $serien_nr, $barcode, $kaufjahr, $kaufpreis, $kategorie_id, $set_id, $lagerort_id, $indispo, $aktiv, $notiz, $bild_id)) {
-                if (isset($lieferant_id)) {
+                if (updateEquipment($equipment_id, $name, $beschrieb, $serien_nr, $barcode, $kaufjahr, $kaufpreis, $kategorie_id, $set_id, $lagerort_id, $indispo, $aktiv, $notiz, $bild_id)) {
+                    if (isset($lieferant_id)) {
 
-                    updateLieferant_Equipment($lieferant_id, $equipment_id);
+                        updateLieferant_Equipment($lieferant_id, $equipment_id);
+                    }
+
+                    Header('Location: equipment.php?success=1');
                 }
-
-                Header('Location: equipment.php?success=1');
-            }
-        } else {
-
-            if (insertEquipment($equipment_id, $name, $beschrieb, $serien_nr, $barcode, $kaufjahr, $kaufpreis, $kategorie_id, $set_id, $lagerort_id, $indispo, $aktiv, $notiz, $bild_id)) {
-
-                //falls ein Lieferant gesetzt wurde, kann jetzt noch der Lieferant_Equipment-Table ergänzt werden
-                if (isset($lieferant_id)) {
-                    insertLieferant_Equipment($lieferant_id, $equipment_id);
-                }
-
-                Header('Location: equipment.php?success=1');
             } else {
-                $msg = 'Beim Versuch in die Datenbank zu speichern ist ein Fehler aufgetreten. ev. gibt es ein Verbindungsproblem.';
-                $msgClass = 'card-panel red lighten-1';
+
+                if (insertEquipment($equipment_id, $name, $beschrieb, $serien_nr, $barcode, $kaufjahr, $kaufpreis, $kategorie_id, $set_id, $lagerort_id, $indispo, $aktiv, $notiz, $bild_id)) {
+
+                    //falls ein Lieferant gesetzt wurde, kann jetzt noch der Lieferant_Equipment-Table ergänzt werden
+                    if (isset($lieferant_id)) {
+                        insertLieferant_Equipment($lieferant_id, $equipment_id);
+                    }
+
+                    Header('Location: equipment.php?success=1');
+                } else {
+                    $msg = 'Beim Versuch in die Datenbank zu speichern ist ein Fehler aufgetreten. ev. gibt es ein Verbindungsproblem.';
+                    $msgClass = 'card-panel red lighten-1';
+                }
             }
-        }
         } else {
         $msg = 'Seriennummer wurde bereits erfasst';
         $msgClass = 'card-panel red lighten-1';
