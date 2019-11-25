@@ -21,6 +21,9 @@ if (isset($_GET['success'])) {
         case 2:
             $msg = 'Eintrag wurde erfolgreich gelöscht';
             $msgClass = 'card-panel teal accent-2';
+        case 3:
+            $msg = 'Eintrag wurde erfolgreich bearbeitet';
+            $msgClass = 'card-panel teal accent-2';
     }
 }
 
@@ -50,7 +53,7 @@ if (isset($_POST['action'])) {
 
             if (updateSet($set_id, $name, $beschrieb, $kategorie_id, $indispo, $aktiv, $notiz, $bild_id)) {
 
-                Header('Location: set.php?success=1');
+                Header("Location: set.php?id=$set_id&success=3");
             } else {
                 $msg = 'Beim Versuch das Update in die Datenbank zu speichern ist ein Fehler aufgetreten. ev. gibt es ein Verbindungsproblem.';
                 $msgClass = 'card-panel red lighten-1';

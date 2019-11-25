@@ -24,6 +24,9 @@ if (isset($_GET['success'])) {
         case 2:
             $msg = 'Eintrag wurde erfolgreich gelöscht';
             $msgClass = 'card-panel teal accent-2';
+        case 3:
+            $msg = 'Eintrag wurde erfolgreich bearbeitet';
+            $msgClass = 'card-panel teal accent-2';
     }
 }
 
@@ -67,7 +70,7 @@ if (isset($_POST['action'])) {
                         updateLieferant_Equipment($lieferant_id, $equipment_id);
                     }
 
-                    Header('Location: equipment.php?success=1');
+                    Header("Location: equipment.php?id=$equipment_id&success=3");
                 }
             } else {
 
@@ -117,7 +120,7 @@ if (isset($_GET['id'])) {
     $kategorie_id = $equipment_data->kategorie_id;
     $set_id = $equipment_data->set_id;
     $lagerort_id = $equipment_data->lagerort_id;
-    $lieferant_id = getLieferant($equipment_id);
+    $lieferant_id = getLieferant($equipment_id)->lieferant_id;
     $indispo = $equipment_data->indispo;
     $aktiv = $equipment_data->aktiv;
     $notiz = $equipment_data->notiz;
@@ -261,7 +264,7 @@ function updateEquipment(&$equipment_id, $name, $beschrieb, $serien_nr, $barcode
             set_id = :set_id,
             kategorie_id = :kategorie_id,
             bild_id = :bild_id,
-            lagerort_id = :lagerort_id 
+            lagerort_id = :lagerort_id
             WHERE equipment_id = :equipment_id";
 
 
@@ -320,13 +323,13 @@ function getLieferanten()
 function getLieferant($equipment_id)
 {
     $pdo = PdoConnector::getConn();
-    $lieferantQuery = "SELECT lieferant_id, firma FROM lieferant 
+    $lieferantQuery = "SELECT lieferant_id FROM lieferant 
     WHERE geloescht = false AND lieferant_id = 
-    (SELECT lieferant_id FROM lieferant_equipment WHERE geloescht = false AND equipment_id = ?);";
+    (SELECT lieferant_id FROM lieferant_equipment WHERE geloescht = false AND equipment_id = ? LIMIT 1);";
 
     $stmt = $pdo->prepare($lieferantQuery);
     $stmt->execute([$equipment_id]);
-    $selectLieferant = $stmt->fetchAll();
+    $selectLieferant = $stmt->fetch();
     $pdo = null;
     return $selectLieferant;
 }

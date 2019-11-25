@@ -92,15 +92,14 @@ $pdo = null;
                         $bild = $set->filename ? $pfad . $set->filename : 'images/'. $set->kategorie_id.'.jpg';
                         $linkvis = '';
                         if (!$set->aktiv) {
-                            $titel = '<b>Nicht verfügbar</b>';
-                            $linkvis = 'hide';
+                            $beschrieb = '<b>Nicht verfügbar</b>';
                         };
                         echo "<li id='set{$set->set_id}' class='collection-item avatar setlist {$set->kategorie_id}'>";
                         echo "<img src={$bild} alt='' class='circle'>";
                         echo "<span class='title'>{$titel}</span>";
                         echo "<p class='truncate'>{$beschrieb}</p>";
                         echo "<p class='status'></p>";
-                        echo "<a href='#!' class='secondary-content bookset {$linkvis}'><i class='material-icons'>playlist_add</i></a>";
+                        echo ($set->aktiv) ? "<a href='#!' class='secondary-content bookset'><i class='material-icons'>playlist_add</i></a>" : '';                       
                         echo "</li>";
                     }
                     //Equipment Elemente
@@ -109,18 +108,16 @@ $pdo = null;
                         $beschrieb = $equipment->beschrieb;
                         $pfad = 'c:/bilder/';
                         $bild = $equipment->filename ? $pfad . $equipment->filename : 'images/'. $equipment->kategorie_id.'.jpg';
-                        $linkvis = '';
+                        
                         if (!$equipment->aktiv) {
                             $titel = '<b>Nicht verfügbar</b>';
                         };
                         echo "<li id='eqp{$equipment->equipment_id}' class='collection-item avatar eqlist {$equipment->kategorie_id}'>";
                         echo "<img src={$bild} alt='' class='circle'>";
-                        echo "<span class='title'>{$titel}</span>";
-                        echo "<p class='truncate'>{$beschrieb}</p>";
-                        echo "<p class='status'></p>";
-                        if ($equipment->aktiv) {
-                            echo "<a href='#!' class='secondary-content bookeqp'><i class='material-icons'>playlist_add</i></a>";
-                        };
+                        echo "<span class='title'>{$beschrieb}</span>";
+                        echo "<p class='truncate'>{$titel}</p>";
+                        echo "<p class='status'></p>";                         
+                        echo ($equipment->aktiv) ? "<a href='#!' class='secondary-content bookeqp'><i class='material-icons'>playlist_add</i></a>" : '';                       
                         echo "</li>";
                     }
                     ?>

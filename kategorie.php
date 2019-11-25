@@ -19,6 +19,9 @@ if (isset($_GET['success'])) {
         case 2:
             $msg = 'Eintrag wurde erfolgreich gelöscht';
             $msgClass = 'card-panel teal accent-2';
+        case 3:
+            $msg = 'Eintrag wurde erfolgreich bearbeitet';
+            $msgClass = 'card-panel teal accent-2';
     }
 }
 
@@ -33,7 +36,7 @@ if (isset($_POST['action'])) {
         if ($update) {
 
             if (updateKategorie($name, $kategorie_id)) {
-                Header('Location: kategorie.php?success=1');
+                Header("Location: kategorie.php?id=$kategorie_id&success=3");
             }
         } else {
 

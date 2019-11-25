@@ -16,7 +16,7 @@ $selectKategories = getKategories();
 $selectSets = getSets();
 $selectLagerorte = getLagerorte();
 $selectLieferanten = getLieferanten();
-$bookings = getNextBookings(10); //->bookings.php
+$bookings = getNextBookings(100); //->booking.php
 
 
 function getKategories()
