@@ -145,7 +145,14 @@ function bookEquipment($id, $date, $user, $callFromSet)
             $sqldate = strtotime($date);
             $readabledate = date('d-M-Y', $sqldate);
             //Info in technikslack
-            $slackparam = "https://intranet.telebasel.ch/telebasel/slack.php?text=". "Dispo-Buchung von $user für $readabledate";
+            function umlauteumwandeln( $str ) {
+                $tempstr = Array( "Ä" => "AE", "Ö" => "OE", "Ü" => "UE", "ä" => "ae", "ö" => "oe", "ü" => "ue" );
+                return strtr( $str, $tempstr );
+            }
+            $msg = umlauteumwandeln("Dispo-Buchung von $user für $readabledate\ndispo.telebasel.ch/dashboard");
+            $urlmsg = urlencode($msg);
+            
+            $slackparam = "https://intranet.telebasel.ch/telebasel/slack.php?text=$urlmsg";
             $slack = file_get_contents($slackparam);
             //Feedback an User
             echo 'Equipment wurde für ' . $user .  ' <br>am '  . $readabledate . ' gebucht. <br> Technik wird informiert';
@@ -154,7 +161,7 @@ function bookEquipment($id, $date, $user, $callFromSet)
         countBookings();
         
     } else {
-        $slackparam = "https://intranet.telebasel.ch/telebasel/slack.php?text=". "$user hatte eine Fehlermeldung bei Buchung für $readabledate";
+        $slackparam = "https://intranet.telebasel.ch/telebasel/slack.php?text=$user hatte eine Fehlermeldung bei Buchung für $readabledate";
         $slack = file_get_contents($slackparam);
         echo "Buchung hat nicht geklappt, <br>bitte mit der Technik in Verbindung setzten";
     }
@@ -194,6 +201,18 @@ function bookSet($id, $date, $user)
     $pdo = null;
     $sqldate = strtotime($date);
     $readabledate = date('d-M-Y', $sqldate);
+
+    //Info in technikslack
+    function umlauteumwandeln( $str ) {
+        $tempstr = Array( "Ä" => "AE", "Ö" => "OE", "Ü" => "UE", "ä" => "ae", "ö" => "oe", "ü" => "ue" );
+        return strtr( $str, $tempstr );
+    }
+    $msg = umlauteumwandeln("Dispo-Buchung von $user für $readabledate\ndispo.telebasel.ch/dashboard");
+    $urlmsg = urlencode($msg);
+    
+    $slackparam = "https://intranet.telebasel.ch/telebasel/slack.php?text=$urlmsg";
+    $slack = file_get_contents($slackparam);
+    
     echo "Set wurde für " . $user . " am " . $readabledate . " gebucht.<br> Technik wird informiert";
     //mail oder slack an technik
 }
