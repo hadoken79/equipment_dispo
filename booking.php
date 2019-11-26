@@ -144,13 +144,18 @@ function bookEquipment($id, $date, $user, $callFromSet)
             //sleep(5);
             $sqldate = strtotime($date);
             $readabledate = date('d-M-Y', $sqldate);
+            //Info in technikslack
+            $slackparam = "https://intranet.telebasel.ch/telebasel/slack.php?text=". "Dispo-Buchung von $user für $readabledate";
+            $slack = file_get_contents($slackparam);
+            //Feedback an User
             echo 'Equipment wurde für ' . $user .  ' <br>am '  . $readabledate . ' gebucht. <br> Technik wird informiert';
-            //mail oder slack an technik
         };
         //Update für Broadcast Message
         countBookings();
         
     } else {
+        $slackparam = "https://intranet.telebasel.ch/telebasel/slack.php?text=". "$user hatte eine Fehlermeldung bei Buchung für $readabledate";
+        $slack = file_get_contents($slackparam);
         echo "Buchung hat nicht geklappt, <br>bitte mit der Technik in Verbindung setzten";
     }
     $pdo = null;

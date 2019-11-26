@@ -49,8 +49,8 @@ if (isset($_POST['action'])) {
     $set_id = (isset($_POST['set_id']) && !empty($_POST['set_id'])) ? filter_var($_POST['set_id'], FILTER_SANITIZE_SPECIAL_CHARS) : null;
     $lagerort_id = (isset($_POST['lagerort_id']) && !empty($_POST['lagerort_id'])) ? filter_var($_POST['lagerort_id'], FILTER_SANITIZE_SPECIAL_CHARS) : null;
     $lieferant_id = (isset($_POST['lieferant_id']) && !empty($_POST['lieferant_id'])) ? filter_var($_POST['lieferant_id'], FILTER_SANITIZE_SPECIAL_CHARS) : null;
-    $indispo = (isset($_POST['indispo']) && $_POST['indispo'] == 'on') ? true : false;
-    $aktiv = (isset($_POST['aktiv']) && $_POST['aktiv'] == 'on') ? true : false;
+    $indispo = (isset($_POST['indispo']) && $_POST['indispo'] == 'on') ? 1 : 0;
+    $aktiv = (isset($_POST['aktiv']) && $_POST['aktiv'] == 'on') ? 1 : 0;
     $filename = (isset($_POST['filename']) && !empty($_POST['filename'])) ? filter_var($_POST['filename'], FILTER_SANITIZE_SPECIAL_CHARS) : '';
     $notiz = (isset($_POST['notiz']) && !empty($_POST['notiz'])) ? filter_var($_POST['notiz'], FILTER_SANITIZE_SPECIAL_CHARS) : "N/A";
     $update = (isset($_POST['update']) && !empty($_POST['update'])) ? filter_var($_POST['update'], FILTER_SANITIZE_SPECIAL_CHARS) : false;
@@ -264,6 +264,7 @@ function insertEquipment(&$equipment_id, $name, $beschrieb, $serien_nr, $barcode
             return true;
         }
     } else {
+       
         return false;
     }
 }
@@ -294,6 +295,9 @@ function updateEquipment(&$equipment_id, $name, $beschrieb, $serien_nr, $barcode
 
         $pdo = null;
         return true;
+    }
+    else{
+        return false;
     }
 }
 
