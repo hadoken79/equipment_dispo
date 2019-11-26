@@ -24,9 +24,15 @@ if (isset($_GET['success'])) {
         case 2:
             $msg = 'Eintrag wurde erfolgreich gelöscht';
             $msgClass = 'card-panel teal accent-2';
+            break;
         case 3:
             $msg = 'Eintrag wurde erfolgreich bearbeitet';
             $msgClass = 'card-panel teal accent-2';
+            break;
+        case 4:
+            $msg = 'Fehler';
+            $msgClass = 'card-panel red lighten-1';
+            break;
     }
 }
 
@@ -63,15 +69,19 @@ if (isset($_POST['action'])) {
             };
 
             if ($update) {
-
+                
                 if (updateEquipment($equipment_id, $name, $beschrieb, $serien_nr, $barcode, $kaufjahr, $kaufpreis, $kategorie_id, $set_id, $lagerort_id, $indispo, $aktiv, $notiz, $bild_id)) {
                     if (isset($lieferant_id)) {
 
                         updateLieferant_Equipment($lieferant_id, $equipment_id);
                     }
-
                     Header("Location: equipment.php?id=$equipment_id&success=3");
+                    
                 }
+                else{
+                    Header("Location: equipment.php?id=$equipment_id&success=4");
+                }
+                
             } else {
 
                 if (insertEquipment($equipment_id, $name, $beschrieb, $serien_nr, $barcode, $kaufjahr, $kaufpreis, $kategorie_id, $set_id, $lagerort_id, $indispo, $aktiv, $notiz, $bild_id)) {
@@ -120,7 +130,7 @@ if (isset($_GET['id'])) {
     $kategorie_id = $equipment_data->kategorie_id;
     $set_id = $equipment_data->set_id;
     $lagerort_id = $equipment_data->lagerort_id;
-    $lieferant_id = getLieferant($equipment_id)->lieferant_id;
+    $lieferant_id = getLieferant($equipment_id);
     $indispo = $equipment_data->indispo;
     $aktiv = $equipment_data->aktiv;
     $notiz = $equipment_data->notiz;
@@ -186,13 +196,23 @@ function numberExists($serien_nr)
 function updateLieferant_Equipment($lieferant_id, $equipment_id)
 {
     $pdo = PdoConnector::getConn();
-    $insertQuery = "UPDATE lieferant_equipment SET lieferant_id = :lieferant_id WHERE equipment_id = :equipment_id;";
-
-    $stmt = $pdo->prepare($insertQuery);
-    if (!$stmt->execute(['equipment_id' => $equipment_id, 'lieferant_id' => $lieferant_id])) {
-        $msg = 'Fehler beim Versuch Lieferant zu Equipment in Datenbank zu speichern';
-        $msgClass = 'card-panel red lighten-1';
+    //erst prüfen ob früher ein Lieferant definiert wurde
+    $hit = getLieferant($equipment_id);
+    //Wenn ja erstellen
+    if(empty($hit)){
+        insertLieferant_Equipment($lieferant_id, $equipment_id);
     }
+    else{
+        //sonst updaten
+        $insertQuery = "UPDATE lieferant_equipment SET lieferant_id = :lieferant_id WHERE equipment_id = :equipment_id;";
+
+        $stmt = $pdo->prepare($insertQuery);
+        if (!$stmt->execute(['equipment_id' => $equipment_id, 'lieferant_id' => $lieferant_id])) {
+            $msg = 'Fehler beim Versuch Lieferant zu Equipment in Datenbank zu speichern';
+            $msgClass = 'card-panel red lighten-1';
+        }
+    }
+  
     $pdo = null;
 }
 
@@ -331,7 +351,13 @@ function getLieferant($equipment_id)
     $stmt->execute([$equipment_id]);
     $selectLieferant = $stmt->fetch();
     $pdo = null;
-    return $selectLieferant;
+    if(!empty($selectLieferant)){
+        return $selectLieferant->lieferant_id;
+    }
+    else{
+        return null;
+    }
+    
 }
 
 function getFilename($bild_id)
