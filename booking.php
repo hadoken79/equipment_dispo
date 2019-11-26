@@ -149,7 +149,7 @@ function bookEquipment($id, $date, $user, $callFromSet)
                 $tempstr = Array( "Ä" => "AE", "Ö" => "OE", "Ü" => "UE", "ä" => "ae", "ö" => "oe", "ü" => "ue" );
                 return strtr( $str, $tempstr );
             }
-            $msg = umlauteumwandeln("Dispo-Buchung von $user für $readabledate\ndispo.telebasel.ch/dashboard");
+            $msg = umlauteumwandeln("Dispo-Buchung von $user für $readabledate\ndispo.telebasel.ch/dashboard.php");
             $urlmsg = urlencode($msg);
             
             $slackparam = "https://intranet.telebasel.ch/telebasel/slack.php?text=$urlmsg";
@@ -207,12 +207,12 @@ function bookSet($id, $date, $user)
         $tempstr = Array( "Ä" => "AE", "Ö" => "OE", "Ü" => "UE", "ä" => "ae", "ö" => "oe", "ü" => "ue" );
         return strtr( $str, $tempstr );
     }
-    $msg = umlauteumwandeln("Dispo-Buchung von $user für $readabledate\ndispo.telebasel.ch/dashboard");
+    $msg = umlauteumwandeln("Dispo-Buchung von $user für $readabledate\ndispo.telebasel.ch/dashboard.php");
     $urlmsg = urlencode($msg);
     
     $slackparam = "https://intranet.telebasel.ch/telebasel/slack.php?text=$urlmsg";
     $slack = file_get_contents($slackparam);
-    
+
     echo "Set wurde für " . $user . " am " . $readabledate . " gebucht.<br> Technik wird informiert";
     //mail oder slack an technik
 }
