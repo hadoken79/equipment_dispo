@@ -88,7 +88,8 @@ $pdo = null;
                     foreach ($sets as $set) {
                         $titel = $set->name;
                         $beschrieb = $set->beschrieb;
-                        $pfad = 'c:/bilder/';
+                        //pfad wird erst relevant, falls Equipmentbilder auf dem Server gelagert werden sollten. im Moment sind alle im ordner Bilder
+                        $pfad = '';//pfad zu den Bildern;
                         $bild = $set->filename ? $pfad . $set->filename : 'images/'. $set->kategorie_id.'.jpg';
                         $linkvis = '';
                         if (!$set->aktiv) {
@@ -106,7 +107,7 @@ $pdo = null;
                     foreach ($equipments as $equipment) {
                         $titel = $equipment->name;
                         $beschrieb = $equipment->beschrieb;
-                        $pfad = 'c:/bilder/';
+                        $pfad = '';
                         $bild = $equipment->filename ? $pfad . $equipment->filename : 'images/'. $equipment->kategorie_id.'.jpg';
                         
                         if (!$equipment->aktiv) {
