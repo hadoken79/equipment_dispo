@@ -439,7 +439,7 @@ function deleteEquipment($equipment_id)
                     </div>
                     <div class="input-field col s12 m6 l4">
                         <select name="set_id">
-                            <option value="" disabled <?php echo ((isset($_GET['id']) || isset($_POST['set_id'])) && !empty($set_id)) ? "" : "selected"; ?>>wähle eine Option</option>
+                            <option value="" <?php echo ((isset($_GET['id']) || isset($_POST['set_id'])) && !empty($set_id)) ? "" : "selected"; ?>>wähle eine Option</option>
                             <?php foreach ($selectSets as $set) : ?>
                                 <option value="<?php echo $set->set_id; ?>" <?php echo ((isset($_GET['id']) || isset($_POST['set_id'])) && $set->set_id === $set_id) ? "selected" : ""; ?>><?php echo $set->name; ?></option>
                             <?php endforeach; ?>
