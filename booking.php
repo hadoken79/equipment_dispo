@@ -2,10 +2,16 @@
 
 require_once('./db/PdoConnector.php');
 
-
+//da kein Header in dieser Seite und in broadcast.php, muss kurz überprüft werden ob user eingeloggt.
 if (!isset($_SESSION)) {
     session_start();
 }
+
+if(!isset($_SESSION['user'])){
+    session_destroy();
+    Header('Location: login.php');
+}
+
 //Initialisierung der Broadcast-Server-Message
 countBookings();
 
