@@ -54,7 +54,7 @@ function checkforBooking($date)
     echo Json_encode($bookings);
 }
 
-function getNextBookings($limit, $order = 'reserviert_fuer', $dir = 'ASC')
+function getNextBookings($limit, $order1 = 'reserviert_fuer', $order2 = 'gebucht_am', $dir = 'ASC')
 {
     $today = date('Y-m-d');
 
@@ -69,7 +69,7 @@ function getNextBookings($limit, $order = 'reserviert_fuer', $dir = 'ASC')
     set_.name AS setname
     FROM buchung LEFT JOIN equipment
     ON buchung.equipment_id = equipment.equipment_id LEFT JOIN set_
-    ON equipment.set_id = set_.set_id WHERE storniert = false AND buchung.reserviert_fuer >= ? ORDER BY $order $dir LIMIT $limit;";
+    ON equipment.set_id = set_.set_id WHERE storniert = false AND buchung.reserviert_fuer >= ? ORDER BY $order1 $dir, $order2 $dir LIMIT $limit;";
     $pdo = PdoConnector::getConn();
     $stmt = $pdo->prepare($bookQuery);
     if ($stmt->execute([$today])) {
@@ -253,7 +253,7 @@ function cancelBooking($id)
         LEFT JOIN equipment
         ON buchung.equipment_id = equipment.equipment_id 
         LEFT JOIN set_
-        ON equipment.set_id = set_.set_id WHERE equipment.set_id IS NOT NULL  AND storniert = false AND buchung.user = :user AND buchung.reserviert_fuer = :datum;";
+        ON equipment.set_id = set_.set_id WHERE equipment.set_id IS NOT NULL AND storniert = false AND buchung.user = :user AND buchung.reserviert_fuer = :datum;";
         $stmt = $pdo->prepare($getSetBookings);
         $stmt->execute(['user' => $booking->user, 'datum' => $booking->reserviert_fuer]);
         $result = $stmt->fetchAll();
