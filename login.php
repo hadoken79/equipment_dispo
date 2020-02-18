@@ -163,7 +163,7 @@ function sessionStart($lifetime, $path, $domain, $secure, $httpOnly)
             <?php if ($msg != '') : ?>
                 <div class="<?php echo $msgClass; ?>"><?php echo $msg; ?></div>
             <?php endif; ?>
-            <form id="lp-form" class="col s12" method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>">
+            <form id="lp-form" class="col s12" method="post">
                 <div class="row">
                     <div class="input-field col s8 offset-s2 m4 offset-m4">
                         <input id="user" name="user" type="text" class="validate">
