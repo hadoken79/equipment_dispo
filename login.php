@@ -88,7 +88,7 @@ function authUser($user, &$fulluser, &$ldap_usr_dn, $pwd)
         }
        
     } else {
-        echo "Keine Verbindung zu Active Directory";
+        //echo "Keine Verbindung zu Active Directory";
     }
 }
 
