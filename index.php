@@ -28,6 +28,7 @@ FROM set_ LEFT JOIN kategorie
 ON set_.kategorie_id = kategorie.kategorie_id LEFT JOIN equipmentbild
 ON set_.bild_id = equipmentbild.bild_id 
 WHERE set_.geloescht=false
+AND set_.indispo=true
 ORDER BY name DESC;";
 
 $stmt = $pdo->prepare($set_query);
